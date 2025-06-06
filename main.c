@@ -8,7 +8,7 @@
 #include <string.h>
 #include <errno.h>                          /*habilita a var global de erro "errno"*/
 
-
+//oi
 typedef struct{
     int tamanho;
     int velo;
