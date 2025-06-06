@@ -1,0 +1,44 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Build Allegro Project",
+            "type": "shell",
+            "command": "g++",
+            "args": [
+                "-g",
+                "${file}",
+                "-o",
+                "${fileDirname}\\${fileBasenameNoExtension}.exe",
+                "-I",
+                "C:\\msys64\\mingw64\\include",
+                "-L",
+                "C:\\msys64\\mingw64\\lib",
+                "-lallegro-5",
+                "-lallegro_main-5",
+                "-lallegro_image-5",
+                "-lallegro_font-5",
+                "-lallegro_primitives-5",
+                "-lallegro_audio-5",
+                "-lallegro_acodec-5",
+                "-lallegro_ttf-5",
+                "-lgdiplus",
+                "-lopengl32",
+                "-lwinthread",
+                "-Wall",
+                "-std=c++17"
+            ],
+            "options": {
+                "cwd": "${fileDirname}"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "detail": "Tarefa de compilação para Allegro 5 com g++"
+        }
+    ]
+}
