@@ -8,7 +8,7 @@
 #include <string.h>
 #include <errno.h>                          /*habilita a var global de erro "errno"*/
 
-//oi
+
 typedef struct{
     int tamanho;
     int velo;
@@ -24,88 +24,96 @@ int main(){
 	al_init();
 	al_init_native_dialog_addon();
 	if(!al_init()){
-        al_show_native_message_box(NULL, 
-            "Erro", 
-            "Falha ao inicializar a Biblioteca",
-            NULL, ALLEGRO_MESSAGEBOX_WARN);	
+        al_show_native_message_box(NULL, "Erro","Falha ao inicializar a Biblioteca", "TOP",NULL, ALLEGRO_MESSAGEBOX_WARN);
 		return 1;
 	}
-
-	al_install_keyboard();
-	al_init_image_addon(); //carregar imagens .bmp
-	al_init_primitives_Addon(); //desenhar formas
-
-	ALLEGRO_TIMER* timer = al_create_timer(1.0 / 60.0);//atualização de frames; 60 frames por segundo
+    //INICIA O TEMPO E DEFINE
+    ALLEGRO_TIMER* timer = al_create_timer(1.0 / 60.0);//atualização de frames; 60 frames por segundo
 	ALLEGRO_EVENT_QUEUE* queue = al_create_event_queue();
+
 
 	ALLEGRO_DISPLAY* disp = al_create_display(800, 600);
   	if (!disp) {
-        al_show_native_message_box(NULL, 
-            "Erro", 
+        al_show_native_message_box(NULL,
+            "Erro",
             "Erro ao iniciar o modo gráfico",
             "Não foi possível criar a janela. Tentando modo de software.",
             NULL, ALLEGRO_MESSAGEBOX_WARN);
 
         // Define a flag para forçar o uso de um renderizador de software
         al_set_new_display_flags(1);
-        
+
         // Tenta criar a janela novamente com a nova flag
         disp = al_create_display(320, 200);
     }
 	if (!disp) {
         char erro_msg[256];
-        
-        al_show_native_message_box(NULL, 
-            "Erro Crítico", 
-            "Impossível iniciar a Biblioteca",
-            strerror(errno),
+
+        al_show_native_message_box(NULL,
+            "Erro Crítico",
+            "Impossível iniciar a Biblioteca","full",
             NULL, ALLEGRO_MESSAGEBOX_ERROR);
-            
+
         exit(1); // Encerra o programa
     }
 
+    //carrega as funções de entrada
+    al_install_keyboard(); //carrega o teclado
+	al_init_image_addon(); //carregar imagens .bmp
+	al_init_primitives_addon(); //desenhar formas
+	al_init_font_addon();//inicia as fontes de texto
+	al_init_ttf_addon();//pode usar fontes ttf
 
-
-	ALLEGRO_FONT* font = al_create_builtin_font();
+	ALLEGRO_FONT* font = al_create_builtin_font();//fonte padrão
 
 	al_register_event_source(queue, al_get_keyboard_event_source());
 	al_register_event_source(queue, al_get_display_event_source(disp));
 	al_register_event_source(queue, al_get_timer_event_source(timer));
-	
+
+
 	al_set_window_title(disp, "Vida Universitária");
-	
-	
+
+
 	//adicione as imagens, bitmap
-	ALLEGRO_BITMAP *personagem = al_load_bitmap("img3.bmp");
-	
+	ALLEGRO_BITMAP *personagem = al_load_bitmap("personagem.bmp");
+	ALLEGRO_BITMAP *background = al_load_bitmap("background.png");
+
 	//verificar se imagem carregou
 	if(!personagem){
         fprintf(stderr, "Erro ao criar sprite.\n");
         return 1;
     }
     al_convert_mask_to_alpha(personagem, al_map_rgb(255, 0, 255));//define a cor transparente para a imagem
-	
+
 	//VARIAVEIS
-	
+
 	//personagem variaveis posicao
 	int persx = 100;
-	int persy = 480;
-	
+	int persy =380;
+	//chão
+	int altura_tela = al_get_display_height(disp);
+	int altura_chao = altura_tela - persy;
+	//variaveis do texto
+	int score_x = 300;
+	int score_y = 150;
+	int scr_result = 0;
+
 	//personagem parte 2, imagens animadas
 	int current_frame = 0;
-	int total_frames = 4;
+	int total_frames = 3;
 	int frame_delay = 5;//alteração de 300para 5
 	int frame_count = 0;
-	
+
+
 	//variaveis para os objetos
 	quadrado unicoquadrado;
 	unicoquadrado.ativo = false;
-	
-	int coordenadasimg[4][4] = {
-			{0, 0, 21, 18}, //frames 1: x,y,largura,altura. largura � 21 - 0 = 21 , altura � 18 -  0 = 18
-			{27,2, 19, 15}, //frame 2: x = 27, y = 2, largura: 46-27(xf-xi) = 19, altura: 17-2(yf - yi) = 15
-			{55, 2, 20, 15}, //frame 3: x = 55, y = 2, largura: 75-55 = 20 ; altura: 17-2 = 15
-			{80, 2, 19, 15} //frame 4, voce tem que aprender a ver o pixel da imagem nos cantos da imagem assim voce consegue o x e y e a largura e altura subtraindo os pontos em x(xf - xi) e y(yf - yi) 
+
+	int coordenadasimg[3][4] = {
+			{0, 0, 336, 571}, //frames 1: x,y,largura,altura. largura � 336 - 0 = 336 , altura � 571 -  0 = 571
+			{349, 3, 313, 563}, //frame 2: x = 27, y = 2, largura: 46-27(xf-xi) = 19, altura: 17-2(yf - yi) = 15
+			{677, 7, 299, 556}, //frame 3: x = 55, y = 2, largura: 75-55 = 20 ; altura: 17-2 = 15
+			//{80, 2, 19, 15} //frame 4, voce tem que aprender a ver o pixel da imagem nos cantos da imagem assim voce consegue o x e y e a largura e altura subtraindo os pontos em x(xf - xi) e y(yf - yi)
 	};
 
 	//
@@ -113,12 +121,12 @@ int main(){
 	bool sair_programa = false;
 	ALLEGRO_EVENT event;
     ALLEGRO_KEYBOARD_STATE keyState; //lê o estado do teclado
-	al_start_timer(timer); 
-	
+	al_start_timer(timer);
+
 	//inicie a logica pro jogo
 	while(!sair_programa){
 		al_wait_for_event(queue, &event); // Espera por um evento
-		
+
         if(event.type == ALLEGRO_EVENT_TIMER) {
             al_get_keyboard_state(&keyState); // Atualiza o estado do teclado
 
@@ -144,7 +152,7 @@ int main(){
             }
             if(!al_key_down(&keyState, ALLEGRO_KEY_LEFT) && !al_key_down(&keyState, ALLEGRO_KEY_RIGHT)) {
                 current_frame = 0; // Personagem parado
-            }		
+            }
 
             // Impedir que o personagem saia da tela
             if(persx < 0) persx = 0;
@@ -165,11 +173,12 @@ int main(){
         if(redesenhar && al_is_event_queue_empty(queue)) {
             redesenhar = false;
 
-            // Limpa a tela
-            al_clear_to_color(al_map_rgb(0,100,255));
+
+
 
             // Desenha o cenário
-            al_draw_filled_rectangle(0, 500, 800, 600, al_map_rgb(0,255,0));
+            al_draw_bitmap(background, 0,0,NULL);
+           // al_draw_filled_rectangle(0, altura_tela - altura_chao +10 , 800, altura_tela, al_map_rgba(50,50,30,0));
             al_draw_filled_circle(100, 100, 50, al_map_rgb(255,255,0));
 
             // Desenha o quadrado
@@ -182,14 +191,22 @@ int main(){
             }
 
             // Desenha a região correta do personagem (spritesheet)
-            al_draw_bitmap_region(personagem,
-                coordenadasimg[current_frame][0], coordenadasimg[current_frame][1],
-                coordenadasimg[current_frame][2], coordenadasimg[current_frame][3],
-                persx, persy, 0);
+            al_draw_scaled_bitmap(
+                personagem,
+                coordenadasimg[current_frame][0] , coordenadasimg[current_frame][1],
+                coordenadasimg[current_frame][2] , coordenadasimg[current_frame][3],
+                persx, persy,
+                coordenadasimg[current_frame][2]*0.2, coordenadasimg[current_frame][3] *0.2,
+                0);
 
+             //fazendo o textos na tela
+             al_draw_textf(font, al_map_rgb(255,255,255), score_x, score_y, ALLEGRO_ALIGN_CENTER, "Score: %d", scr_result);
+             scr_result++;
 
             // Joga tudo que foi desenhado na tela
             al_flip_display();
+            //substitui a tela anteiro
+            al_clear_to_color(al_map_rgb(0,0,0));
         }
     }
 
