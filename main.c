@@ -87,6 +87,10 @@ int main(){
 
 	//VARIAVEIS
 
+    //variavel booleana (t/f) que define se a personagem esta olhando para a direita ou esquerda
+    bool vira_esquerda;
+    vira_esquerda = false;//inicializando como false
+
 	//personagem variaveis posicao
 	int persx = 100;
 	int persy =380;
@@ -133,9 +137,11 @@ int main(){
             // Movimento do personagem
             if(al_key_down(&keyState, ALLEGRO_KEY_LEFT)) {
                 persx -= 5;
+                vira_esquerda=true;//quando a tecla esquerda e pressionada, vira_esquerda=true
             }
             if(al_key_down(&keyState, ALLEGRO_KEY_RIGHT)) {
                 persx += 5;
+                vira_esquerda=false;//quando a tecla direita e pressionada, vira_esquerda=false
             }
             if(al_key_down(&keyState, ALLEGRO_KEY_ESCAPE)){
                 sair_programa = true;
@@ -155,10 +161,22 @@ int main(){
             }
 
             // Impedir que o personagem saia da tela
+            /*
             if(persx < 0) persx = 0;
             if(persx > al_get_display_width(disp) - coordenadasimg[current_frame][2]){
                 persx = al_get_display_width(disp) - coordenadasimg[current_frame][2];
             }
+            */
+            //o bug na hora de virar a boneca pra esquerda me faz pensar q talvez o codigota contando a boneca grande
+            //sendo que o kauha redimensionou pra ela ficar menorzinha
+
+            float largura_redimensionada;//cria uma variavel para compensar, "na largura do sprite" nao sei se e a forma correta de se falar, o fato de que ela foi diminuida
+            largura_redimensionada = coordenadasimg[current_frame][2]*0.2;//compensa a largura, tambem com 0.2 pra ficar proporcional perfeitinho
+
+            if(persx>al_get_display_width(disp)- largura_redimensionada){
+                persx =al_get_display_width(disp)- largura_redimensionada;
+            }//meio que muda so que substitui os coordenadasimg... por largura redimensionada para compensar
+
 
             // Atualiza os quadrados caindo
             atualizar_quadrado(&unicoquadrado, disp);
@@ -189,7 +207,7 @@ int main(){
                      unicoquadrado.cor
                  );
             }
-
+/*
             // Desenha a região correta do personagem (spritesheet)
             al_draw_scaled_bitmap(
                 personagem,
@@ -198,6 +216,31 @@ int main(){
                 persx, persy,
                 coordenadasimg[current_frame][2]*0.2, coordenadasimg[current_frame][3] *0.2,
                 0);
+*///comentando a parte que faz o desenho para fazer um teste da personagem virando de lado
+
+            if(vira_esquerda==true){
+    al_draw_scaled_bitmap(
+        personagem,
+        coordenadasimg[current_frame][0], coordenadasimg[current_frame][1],  // igual
+        coordenadasimg[current_frame][2], coordenadasimg[current_frame][3],  // igual
+        persx + coordenadasimg[current_frame][2]*0.2// mas x tem que ser compensada para que a personagem fiqie posiionada corretamente e se nao tiver esse 0.2 ela teleporta qando vira
+        , persy,  // posição y pode continuar a mesma
+        -coordenadasimg[current_frame][2]*0.2, coordenadasimg[current_frame][3]*0.2,0);  // negativa a largura pra espelahr, deixa a mesma altura
+//ago
+            }else{
+                if(vira_esquerda==false){
+            al_draw_scaled_bitmap(
+                personagem,
+                coordenadasimg[current_frame][0] , coordenadasimg[current_frame][1],
+                coordenadasimg[current_frame][2] , coordenadasimg[current_frame][3],
+                persx, persy,
+                coordenadasimg[current_frame][2]*0.2, coordenadasimg[current_frame][3] *0.2,0);
+                //igual o que ja tinha no codigo(para direita)
+                }
+            }
+            //agora ela vira para a esquerda mas quando anda da umas mini travadinhas nao sei o que fazer
+            //outra coisa, antes de adicionar o *0.2, estava bugado e talvez eu tenha tido uma ideia de pq ela nao vai ate o final da direita
+            //apesar diss, ela continua indo ate o final da esquerda como antes
 
              //fazendo o textos na tela
              al_draw_textf(font, al_map_rgb(255,255,255), score_x, score_y, ALLEGRO_ALIGN_CENTER, "Score: %d", scr_result);
