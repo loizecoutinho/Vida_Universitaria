@@ -172,11 +172,21 @@ int main(){
 
             float largura_redimensionada;//cria uma variavel para compensar, "na largura do sprite" nao sei se e a forma correta de se falar, o fato de que ela foi diminuida
             largura_redimensionada = coordenadasimg[current_frame][2]*0.2;//compensa a largura, tambem com 0.2 pra ficar proporcional perfeitinho
-
+/*
             if(persx>al_get_display_width(disp)- largura_redimensionada){
                 persx =al_get_display_width(disp)- largura_redimensionada;
             }//meio que muda so que substitui os coordenadasimg... por largura redimensionada para compensar
+*/
 
+            if(vira_esquerda){
+                    if(persx<-largura_redimensionada){
+                        persx = -largura_redimensionada;
+                    }
+            }else{
+                if(persx>al_get_display_width(disp)-largura_redimensionada){
+                persx = al_get_display_width(disp)-largura_redimensionada;
+                }
+            }//agora ela fica travainha na esquerda, mas ultrapassa a tela mesmo assim, mas pelo menos ta um pouco melhor
 
             // Atualiza os quadrados caindo
             atualizar_quadrado(&unicoquadrado, disp);
