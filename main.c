@@ -161,12 +161,12 @@ int main(){
             }
 
             // Impedir que o personagem saia da tela
-            /*
+
             if(persx < 0) persx = 0;
-            if(persx > al_get_display_width(disp) - coordenadasimg[current_frame][2]){
+            /*if(persx > al_get_display_width(disp) - coordenadasimg[current_frame][2]){
                 persx = al_get_display_width(disp) - coordenadasimg[current_frame][2];
-            }
-            */
+            }*/
+
             //o bug na hora de virar a boneca pra esquerda me faz pensar q talvez o codigota contando a boneca grande
             //sendo que o kauha redimensionou pra ela ficar menorzinha
 
