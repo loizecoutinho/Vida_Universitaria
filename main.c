@@ -12,7 +12,7 @@
 int pontuacao = 0;//pontuação inicial; variavel global
 int vida = 3; //quantidade de vida inicial
 
-//Estrutura para um vetor 2D (posição e tamanho)
+//Estrutura para um vetor 2D (posição e tamanho) 
 typedef struct{
     int x, y;
 }vetor2d;
@@ -23,14 +23,14 @@ typedef struct{
     vetor2d posicao;
     int velo;
     ALLEGRO_COLOR cor; // Alterado de int para ALLEGRO_COLOR
-    bool ativo;
-}Objeto;// referido dentro do codigo como "quadrado"; exemplo:int atualizar_quadrado(Objeto *q, ALLEGRO_DISPLAY* disp);
+    bool ativo;    
+}Objeto;
 
 bool checacolisao(Objeto *um, Objeto *dois){
     //checa se há colisão no eixo x;
     bool colisaoX = um->posicao.x + um->tamanho.x >= dois->posicao.x &&
                     dois->posicao.x + dois->tamanho.x >= um->posicao.x;
-
+                
     //checa se há colisão no eixo y:
     bool colisaoY = um->posicao.y + um->tamanho.y >= dois->posicao.y &&
                     dois->posicao.y + dois->tamanho.y >= um->posicao.y;
@@ -50,7 +50,7 @@ int main(){
 	}
     //INICIA O TEMPO E DEFINE
     ALLEGRO_TIMER* timer = al_create_timer(1.0 / 60.0);//atualização de frames; 60 frames por segundo
-	ALLEGRO_EVENT_QUEUE* queue = al_create_event_queue();//fila que irá armazenar eventos, como a sequencia de teclas apertadas pelo user;
+	ALLEGRO_EVENT_QUEUE* queue = al_create_event_queue();//fila que irá armazenar eventos, como a sequencia de teclas apertadas pelo user; 
 
 
 	ALLEGRO_DISPLAY* disp = al_create_display(800, 600);
@@ -86,11 +86,6 @@ int main(){
 	al_init_ttf_addon();//pode usar fontes ttf
 
 	ALLEGRO_FONT* font = al_create_builtin_font();//fonte padrão
-	ALLEGRO_FONT* fonte_titulo = al_load_ttf_font("PressStart2P-Regular.ttf", 32, 0);//fonte press start 2p para titulo no menu
-	ALLEGRO_FONT* fonte_opcoes = al_load_ttf_font("PressStart2P-Regular.ttf", 20, 0);//fonte press start 2p para opções no menu
-    //parametros:nome do arquivo.ttf, tamanho da fonte, 0 op adicionais
-    //criei duas fontes com o mesmo arquivo para poder ter textos com tamanhos diferentes
-
 
 	al_register_event_source(queue, al_get_keyboard_event_source()); //registra na fila de evento as ações do user com o teclado;
 	al_register_event_source(queue, al_get_display_event_source(disp));//registra na fila de evento as ações no display;
@@ -103,7 +98,6 @@ int main(){
 	//adicione as imagens, bitmap
 	ALLEGRO_BITMAP *personagem = al_load_bitmap("personagem.bmp");
 	ALLEGRO_BITMAP *background = al_load_bitmap("background.png");
-	ALLEGRO_BITMAP *fundo_menu = al_load_bitmap("fundo_menu.png");
 
 	//verificar se imagem carregou
 	if(!personagem){
@@ -137,7 +131,7 @@ int main(){
 	unicoquadrado.ativo = false;
 
 	int coordenadasimg[3][4] = {
-			{0, 0, 336, 571}, //frames 1: x,y,largura,altura. largura   336 - 0 = 336 , altura   571 -  0 = 571
+			{0, 0, 336, 571}, //frames 1: x,y,largura,altura. largura � 336 - 0 = 336 , altura � 571 -  0 = 571
 			{349, 3, 313, 563}, //frame 2: x = 27, y = 2, largura: 46-27(xf-xi) = 19, altura: 17-2(yf - yi) = 15
 			{677, 7, 299, 556}, //frame 3: x = 55, y = 2, largura: 75-55 = 20 ; altura: 17-2 = 15
 			//{80, 2, 19, 15} //frame 4, voce tem que aprender a ver o pixel da imagem nos cantos da imagem assim voce consegue o x e y e a largura e altura subtraindo os pontos em x(xf - xi) e y(yf - yi)
@@ -149,40 +143,31 @@ int main(){
 	ALLEGRO_EVENT event;
     ALLEGRO_KEYBOARD_STATE keyState; //lê o estado do teclado
 	al_start_timer(timer);
-	int estado_do_jogo;
-    estado_do_jogo=0;//(0-tela de inicio, 1-jogando
-
 
 	//inicie a logica pro jogo
 	while(!sair_programa){
-        al_wait_for_event(queue, &event); // Espera por um evento
-
-        if(estado_do_jogo==0){
-            //tela de inicio
-            al_draw_bitmap(fundo_menu, 0, 0, NULL); // desenha o fundo da tela inicial
-            al_draw_text(fonte_titulo, al_map_rgb(0,0,0), 396, 100, ALLEGRO_ALIGN_CENTER, "VIDA UNIVERSITÁRIA");
-            al_draw_text(fonte_titulo, al_map_rgb(255,255,255), 400, 100, ALLEGRO_ALIGN_CENTER, "VIDA UNIVERSITÁRIA");
-            //"duplicado" pois criei uma em preto e outra em branco pra ser meio que a borda e dar contraste com a nuvem
-            al_draw_text(fonte_opcoes, al_map_rgb(0,0,0), 396, 350, ALLEGRO_ALIGN_CENTER, "Pressione ENTER para jogar");
-            al_draw_text(fonte_opcoes, al_map_rgb(0,0,0), 396, 400, ALLEGRO_ALIGN_CENTER, "Pressione ESC para sair");
-            al_draw_text(fonte_opcoes, al_map_rgb(255,255,255), 400, 350, ALLEGRO_ALIGN_CENTER, "Pressione ENTER para jogar");
-            al_draw_text(fonte_opcoes, al_map_rgb(255,255,255), 400, 400, ALLEGRO_ALIGN_CENTER, "Pressione ESC para sair");
-
-            al_flip_display(); // joga na tela
-
-
-            al_get_keyboard_state(&keyState);
-
-            if(al_key_down(&keyState, ALLEGRO_KEY_ESCAPE)){
-                sair_programa = true;
-            }
-            if(al_key_down(&keyState, ALLEGRO_KEY_ENTER)){
-                estado_do_jogo=1;
-            }
-
-        }else{
-        if(estado_do_jogo==1){
-           //al_wait_for_event(queue, &event); // Espera por um evento
+ 
+        al_draw_textf(
+            font,
+            al_map_rgb(255,255,0), //cor: amarelo
+            800/2,                 //centro da tela
+            30,                    //posição y
+            ALLEGRO_ALIGN_CENTER,  //centralizar
+            "VIDA: %d",
+            vida
+        );
+        
+        al_draw_textf(
+            font,
+            al_map_rgb(255,255,0), //cor: amarelo
+            800/2,                 //centro da tela
+            20,                    //posição y- perto do topo
+            ALLEGRO_ALIGN_CENTER,  //centralizar
+            "PONTUAÇÃO: %d",
+            pontuacao
+        );         
+        
+		al_wait_for_event(queue, &event); // Espera por um evento
 
         if(event.type == ALLEGRO_EVENT_TIMER) {
             al_get_keyboard_state(&keyState); // Atualiza o estado do teclado
@@ -199,10 +184,6 @@ int main(){
             if(al_key_down(&keyState, ALLEGRO_KEY_ESCAPE)){
                 sair_programa = true;
             }
-            if(al_key_down(&keyState, ALLEGRO_KEY_M)){
-                estado_do_jogo=0;
-            }
-
 
 			//Animação do personagem
             frame_count++;
@@ -309,21 +290,34 @@ int main(){
             //outra coisa, antes de adicionar o *0.2, estava bugado e talvez eu tenha tido uma ideia de pq ela nao vai ate o final da direita
             //apesar diss, ela continua indo ate o final da esquerda como antes
 
-
-            al_draw_text(fonte_opcoes, al_map_rgb(0,0,0), 16,580 , ALLEGRO_ALIGN_LEFT, "Pressione M para voltar ao menu");
-            al_draw_text(fonte_opcoes, al_map_rgb(255,255,255), 20,580 , ALLEGRO_ALIGN_LEFT, "Pressione M para voltar ao menu");
-
-            // Joga tudo que foi desenhado na tela
-            al_flip_display();
-            //substitui a tela anteiro
-            al_clear_to_color(al_map_rgb(0,0,0));
         }
 
         if(checacolisao(&unicoquadrado, &altura_chao)){
+            unicoquadrado.ativo = false;//pro objeto sumir
             vida--;
+            al_draw_textf(
+                font,
+                al_map_rgb(255,255,0), //cor: amarelo
+                800/2,                 //centro da tela
+                30,                    //posição y
+                ALLEGRO_ALIGN_CENTER,  //centralizar
+                "VIDA: %d",
+                vida
+            ); 
+
         }
         if(checacolisao(&unicoquadrado, &personagem)){
+            unicoquadrado.ativo = false;//pro objeto sumir             
             pontuacao++;
+            al_draw_textf(
+                font,
+                al_map_rgb(255,255,0), //cor: amarelo
+                800/2,                 //centro da tela
+                20,                    //posição y- perto do topo
+                ALLEGRO_ALIGN_CENTER,  //centralizar
+                "PONTUAÇÃO: %d",
+                pontuacao
+            );           
         }
 
         if(vida == 0){
@@ -332,15 +326,16 @@ int main(){
                 font,
                 al_map_rgb(255, 0, 0),
                  800/ 2,
-                altura_tela / 2 - 80,
+                altura_tela / 2,
                 ALLEGRO_ALIGN_CENTER,
                 "GAME OVER"
             );
         }
-            }
-        }
-
-
+        // Joga tudo que foi desenhado na tela
+        al_flip_display();
+        //substitui a tela anteiro
+        al_clear_to_color(al_map_rgb(0,0,0));    
+    
     }
 
 
@@ -350,9 +345,7 @@ int main(){
     al_destroy_display(disp);
     al_destroy_timer(timer);
     al_destroy_event_queue(queue);
-    al_destroy_bitmap(fundo_menu);
-    al_destroy_font(fonte_titulo);
-    al_destroy_font(fonte_opcoes);
+
     return 0;
 }
 
