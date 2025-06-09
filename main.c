@@ -144,9 +144,13 @@ int main(){
     ALLEGRO_KEYBOARD_STATE keyState; //lê o estado do teclado
 	al_start_timer(timer);
 
+        al_flip_display();
+        //substitui a tela anteiror
+        al_clear_to_color(al_map_rgb(0,0,0));  
+	
 	//inicie a logica pro jogo
-	while(!sair_programa){
- 
+	while(!sair_programa){  
+		
         al_draw_textf(
             font,
             al_map_rgb(255,255,0), //cor: amarelo
@@ -289,10 +293,6 @@ int main(){
             //agora ela vira para a esquerda mas quando anda da umas mini travadinhas nao sei o que fazer
             //outra coisa, antes de adicionar o *0.2, estava bugado e talvez eu tenha tido uma ideia de pq ela nao vai ate o final da direita
             //apesar diss, ela continua indo ate o final da esquerda como antes
-	        // Joga tudo que foi desenhado na tela
-        al_flip_display();
-        //substitui a tela anteiro
-        al_clear_to_color(al_map_rgb(0,0,0));
 
         }
 
