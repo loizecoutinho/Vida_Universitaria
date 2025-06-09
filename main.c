@@ -29,7 +29,7 @@ int main(){
 	}
     //INICIA O TEMPO E DEFINE
     ALLEGRO_TIMER* timer = al_create_timer(1.0 / 60.0);//atualização de frames; 60 frames por segundo
-	ALLEGRO_EVENT_QUEUE* queue = al_create_event_queue();
+	ALLEGRO_EVENT_QUEUE* queue = al_create_event_queue();//fila que irá armazenar eventos, como a sequencia de teclas apertadas pelo user; 
 
 
 	ALLEGRO_DISPLAY* disp = al_create_display(800, 600);
@@ -44,10 +44,10 @@ int main(){
         al_set_new_display_flags(1);
 
         // Tenta criar a janela novamente com a nova flag
-        disp = al_create_display(320, 200);
+        disp = al_create_display(800, 600);
     }
 	if (!disp) {
-        char erro_msg[256];
+        //char erro_msg[256];-> não é necessario
 
         al_show_native_message_box(NULL,
             "Erro Crítico",
@@ -66,9 +66,9 @@ int main(){
 
 	ALLEGRO_FONT* font = al_create_builtin_font();//fonte padrão
 
-	al_register_event_source(queue, al_get_keyboard_event_source());
-	al_register_event_source(queue, al_get_display_event_source(disp));
-	al_register_event_source(queue, al_get_timer_event_source(timer));
+	al_register_event_source(queue, al_get_keyboard_event_source()); //registra na fila de evento as ações do user com o teclado;
+	al_register_event_source(queue, al_get_display_event_source(disp));//registra na fila de evento as ações no display;
+	al_register_event_source(queue, al_get_timer_event_source(timer));//registra na fila de evento as alterações no timer;
 
 
 	al_set_window_title(disp, "Vida Universitária");
