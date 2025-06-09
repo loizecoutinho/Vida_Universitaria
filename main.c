@@ -24,7 +24,7 @@ typedef struct{
     int velo;
     ALLEGRO_COLOR cor; // Alterado de int para ALLEGRO_COLOR
     bool ativo;
-}Objeto;
+}Objeto;// referido dentro do codigo como "quadrado"; exemplo:int atualizar_quadrado(Objeto *q, ALLEGRO_DISPLAY* disp);
 
 bool checacolisao(Objeto *um, Objeto *dois){
     //checa se há colisão no eixo x;
