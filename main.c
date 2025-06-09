@@ -6,16 +6,31 @@
 #include <allegro5/allegro_native_dialog.h> /*para caixa de mensagem */
 #include <stdio.h>                          /*entrada e saída*/
 #include <string.h>
+#include <stdbool.h>                        /*para utilização do tipo bool*/
 #include <errno.h>                          /*habilita a var global de erro "errno"*/
 
-
+int pontuacao = 0;//pontuação inicial; variavel global
+int vida = 3; //quantidade de vida inicial
 typedef struct{
-    int tamanho;
+    quadrado tamanho;
+    quadrado posicao;
     int velo;
     int x, y;
     ALLEGRO_COLOR cor; // Alterado de int para ALLEGRO_COLOR
     bool ativo;
 } quadrado;
+
+bool checacolisao(quadrado *um, quadrado *dois){
+    //checa se há colisão no eixo x;
+    bool colisaoX = um->posicao.x + um->tamanho.x >= dois->posicao.x &&
+                    dois->posicao.x + dois->tamanho.x >= um->posicao.x;
+                
+    //checa se há colisão no eixo y:
+    bool colisaoY = um->posicao.y + um->tamanho.y >= dois->posicao.y &&
+                    dois->posicao.y + dois->tamanho.y >= um->posicao.y;
+    //A colisão só ocorre se houver em ambos os eixos:
+    return colisaoX && colisaoY;
+}
 
 //funcoes prototipo
 int atualizar_quadrado(quadrado *q, ALLEGRO_DISPLAY* disp);
@@ -97,10 +112,6 @@ int main(){
 	//chão
 	int altura_tela = al_get_display_height(disp);
 	int altura_chao = altura_tela - persy;
-	//variaveis do texto
-	int score_x = 300;
-	int score_y = 150;
-	int scr_result = 0;
 
 	//personagem parte 2, imagens animadas
 	int current_frame = 0;
@@ -252,16 +263,34 @@ int main(){
             //outra coisa, antes de adicionar o *0.2, estava bugado e talvez eu tenha tido uma ideia de pq ela nao vai ate o final da direita
             //apesar diss, ela continua indo ate o final da esquerda como antes
 
-             //fazendo o textos na tela
-             al_draw_textf(font, al_map_rgb(255,255,255), score_x, score_y, ALLEGRO_ALIGN_CENTER, "Score: %d", scr_result);
-             scr_result++;
 
             // Joga tudo que foi desenhado na tela
             al_flip_display();
             //substitui a tela anteiro
             al_clear_to_color(al_map_rgb(0,0,0));
         }
+
+        if(checacolisao(&unicoquadrado, &altura_chao)){
+            vida--;
+        }
+        if(checacolisao(&unicoquadrado, &personagem)){
+            pontuacao++;
+        }
+
+        if(vida == 0){
+            al_clear_to_color(al_map_rgb(0, 0, 0));
+            al_draw_text(
+                font,
+                al_map_rgb(255, 0, 0),
+                 800/ 2,
+                altura_tela / 2 - 80,
+                ALLEGRO_ALIGN_CENTER,
+                "GAME OVER"
+            );
+        }
+    
     }
+
 
     // Limpeza de recursos
     al_destroy_bitmap(personagem);
