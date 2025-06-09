@@ -11,16 +11,22 @@
 
 int pontuacao = 0;//pontuação inicial; variavel global
 int vida = 3; //quantidade de vida inicial
-typedef struct{
-    quadrado tamanho;
-    quadrado posicao;
-    int velo;
-    int x, y;
-    ALLEGRO_COLOR cor; // Alterado de int para ALLEGRO_COLOR
-    bool ativo;
-} quadrado;
 
-bool checacolisao(quadrado *um, quadrado *dois){
+//Estrutura para um vetor 2D (posição e tamanho) 
+typedef struct{
+    int x, y;
+}vetor2d;
+
+//Estrutura para o objeto caindo
+typedef struct{
+    vetor2d tamanho;
+    vetor2d posicao;
+    int velo;
+    ALLEGRO_COLOR cor; // Alterado de int para ALLEGRO_COLOR
+    bool ativo;    
+}Objeto;
+
+bool checacolisao(Objeto *um, Objeto *dois){
     //checa se há colisão no eixo x;
     bool colisaoX = um->posicao.x + um->tamanho.x >= dois->posicao.x &&
                     dois->posicao.x + dois->tamanho.x >= um->posicao.x;
@@ -33,7 +39,7 @@ bool checacolisao(quadrado *um, quadrado *dois){
 }
 
 //funcoes prototipo
-int atualizar_quadrado(quadrado *q, ALLEGRO_DISPLAY* disp);
+int atualizar_quadrado(Objeto *q, ALLEGRO_DISPLAY* disp);
 
 int main(){
 	al_init();
@@ -121,7 +127,7 @@ int main(){
 
 
 	//variaveis para os objetos
-	quadrado unicoquadrado;
+	Objeto unicoquadrado;
 	unicoquadrado.ativo = false;
 
 	int coordenadasimg[3][4] = {
@@ -223,8 +229,8 @@ int main(){
             // Desenha o quadrado
             if(unicoquadrado.ativo){
                  al_draw_filled_rectangle(
-                     unicoquadrado.x, unicoquadrado.y,
-                     unicoquadrado.x + unicoquadrado.tamanho, unicoquadrado.y + unicoquadrado.tamanho,
+                     unicoquadrado.posicao.x, unicoquadrado.posicao.y,
+                     unicoquadrado.posicao.x + unicoquadrado.tamanho.x, unicoquadrado.posicao.y + unicoquadrado.tamanho.y,
                      unicoquadrado.cor
                  );
             }
@@ -303,19 +309,20 @@ int main(){
 }
 
 
-int atualizar_quadrado(quadrado *q, ALLEGRO_DISPLAY* disp){
+int atualizar_quadrado(Objeto *q, ALLEGRO_DISPLAY* disp){
     if(!q->ativo){
-        q->x = rand() % (al_get_display_width(disp) - 30);
-        q->y = 0;
+        q->posicao.x = rand() % (al_get_display_width(disp) - 30);
+        q->posicao.y = 0;
         q->cor = al_map_rgb(rand()%256, rand()%256, rand()%256);
         q->velo = 2 + (rand()%3);
-        q->tamanho = rand()%16+5;
+        q->tamanho.x = rand()%16+5;
+        q->tamanho.y = rand()%16+5;
         q->ativo = true;
     }
 
-    q->y += q->velo;
+    q->posicao.y += q->velo;
 
-    if(q->y > al_get_display_height(disp)){
+    if(q->posicao.y > al_get_display_height(disp)){
         q->ativo = false;
         return 0;
     }
