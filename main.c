@@ -12,7 +12,7 @@
 int pontuacao = 0;//pontuação inicial; variavel global
 int vida = 3; //quantidade de vida inicial
 
-//Estrutura para um vetor 2D (posição e tamanho) 
+//Estrutura para um vetor 2D (posição e tamanho)
 typedef struct{
     int x, y;
 }vetor2d;
@@ -23,14 +23,14 @@ typedef struct{
     vetor2d posicao;
     int velo;
     ALLEGRO_COLOR cor; // Alterado de int para ALLEGRO_COLOR
-    bool ativo;    
+    bool ativo;
 }Objeto;
 
 bool checacolisao(Objeto *um, Objeto *dois){
     //checa se há colisão no eixo x;
     bool colisaoX = um->posicao.x + um->tamanho.x >= dois->posicao.x &&
                     dois->posicao.x + dois->tamanho.x >= um->posicao.x;
-                
+
     //checa se há colisão no eixo y:
     bool colisaoY = um->posicao.y + um->tamanho.y >= dois->posicao.y &&
                     dois->posicao.y + dois->tamanho.y >= um->posicao.y;
@@ -50,7 +50,7 @@ int main(){
 	}
     //INICIA O TEMPO E DEFINE
     ALLEGRO_TIMER* timer = al_create_timer(1.0 / 60.0);//atualização de frames; 60 frames por segundo
-	ALLEGRO_EVENT_QUEUE* queue = al_create_event_queue();//fila que irá armazenar eventos, como a sequencia de teclas apertadas pelo user; 
+	ALLEGRO_EVENT_QUEUE* queue = al_create_event_queue();//fila que irá armazenar eventos, como a sequencia de teclas apertadas pelo user;
 
 
 	ALLEGRO_DISPLAY* disp = al_create_display(800, 600);
@@ -144,13 +144,12 @@ int main(){
     ALLEGRO_KEYBOARD_STATE keyState; //lê o estado do teclado
 	al_start_timer(timer);
 
-        al_flip_display();
-        //substitui a tela anteiror
-        al_clear_to_color(al_map_rgb(0,0,0));  
-	
+    al_flip_display();
+
+
 	//inicie a logica pro jogo
-	while(!sair_programa){  
-		
+	while(!sair_programa){
+
         al_draw_textf(
             font,
             al_map_rgb(255,255,0), //cor: amarelo
@@ -160,7 +159,7 @@ int main(){
             "VIDA: %d",
             vida
         );
-        
+
         al_draw_textf(
             font,
             al_map_rgb(255,255,0), //cor: amarelo
@@ -169,8 +168,10 @@ int main(){
             ALLEGRO_ALIGN_CENTER,  //centralizar
             "PONTUAÇÃO: %d",
             pontuacao
-        );         
-        
+        );
+
+
+
 		al_wait_for_event(queue, &event); // Espera por um evento
 
         if(event.type == ALLEGRO_EVENT_TIMER) {
@@ -205,20 +206,14 @@ int main(){
             // Impedir que o personagem saia da tela
 
             if(persx < 0) persx = 0;
-            /*if(persx > al_get_display_width(disp) - coordenadasimg[current_frame][2]){
-                persx = al_get_display_width(disp) - coordenadasimg[current_frame][2];
-            }*/
 
             //o bug na hora de virar a boneca pra esquerda me faz pensar q talvez o codigota contando a boneca grande
             //sendo que o kauha redimensionou pra ela ficar menorzinha
 
             float largura_redimensionada;//cria uma variavel para compensar, "na largura do sprite" nao sei se e a forma correta de se falar, o fato de que ela foi diminuida
             largura_redimensionada = coordenadasimg[current_frame][2]*0.2;//compensa a largura, tambem com 0.2 pra ficar proporcional perfeitinho
-/*
-            if(persx>al_get_display_width(disp)- largura_redimensionada){
-                persx =al_get_display_width(disp)- largura_redimensionada;
-            }//meio que muda so que substitui os coordenadasimg... por largura redimensionada para compensar
-*/
+
+            //meio que muda so que substitui os coordenadasimg... por largura redimensionada para compensar
 
             if(vira_esquerda){
                     if(persx<-largura_redimensionada){
@@ -240,11 +235,8 @@ int main(){
             sair_programa = true;
         }
         // --- Seção de Desenho (só executa quando necessário) ---
-        if(redesenhar && al_is_event_queue_empty(queue)) {
+        if(redesenhar) {
             redesenhar = false;
-
-
-
 
             // Desenha o cenário
             al_draw_bitmap(background, 0,0,NULL);
@@ -259,16 +251,8 @@ int main(){
                      unicoquadrado.cor
                  );
             }
-/*
-            // Desenha a região correta do personagem (spritesheet)
-            al_draw_scaled_bitmap(
-                personagem,
-                coordenadasimg[current_frame][0] , coordenadasimg[current_frame][1],
-                coordenadasimg[current_frame][2] , coordenadasimg[current_frame][3],
-                persx, persy,
-                coordenadasimg[current_frame][2]*0.2, coordenadasimg[current_frame][3] *0.2,
-                0);
-*///comentando a parte que faz o desenho para fazer um teste da personagem virando de lado
+
+//comentando a parte que faz o desenho para fazer um teste da personagem virando de lado
 
             if(vira_esquerda==true){
     al_draw_scaled_bitmap(
@@ -307,11 +291,11 @@ int main(){
                 ALLEGRO_ALIGN_CENTER,  //centralizar
                 "VIDA: %d",
                 vida
-            ); 
+            );
 
         }
         if(checacolisao(&unicoquadrado, &personagem)){
-            unicoquadrado.ativo = false;//pro objeto sumir             
+            unicoquadrado.ativo = false;//pro objeto sumir
             pontuacao++;
             al_draw_textf(
                 font,
@@ -321,11 +305,11 @@ int main(){
                 ALLEGRO_ALIGN_CENTER,  //centralizar
                 "PONTUAÇÃO: %d",
                 pontuacao
-            );           
+            );
         }
 
         if(vida == 0){
-            al_clear_to_color(al_map_rgb(0, 0, 0));
+
             al_draw_text(
                 font,
                 al_map_rgb(255, 0, 0),
@@ -335,11 +319,11 @@ int main(){
                 "GAME OVER"
             );
         }
+        //substitui a tela anteiro
+
         // Joga tudo que foi desenhado na tela
         al_flip_display();
-        //substitui a tela anteiro
-        al_clear_to_color(al_map_rgb(0,0,0));    
-    
+
     }
 
 
