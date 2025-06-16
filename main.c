@@ -4,6 +4,8 @@
 #include <allegro5/allegro_primitives.h>    /*para desenhar formas como retângulos e círculos */
 #include <allegro5/allegro_ttf.h>           /* permite carregamento de fontes ttf e otf; cria textos bonitos */
 #include <allegro5/allegro_native_dialog.h> /*para caixa de mensagem */
+#include <allegro5/allegro_audio.h>	    /* para áudio*/
+#include <allegro5/allegro_acodec.h>	    /*para addons de codecs de audio*/
 #include <stdio.h>                          /*entrada e saída*/
 #include <string.h>
 #include <stdbool.h>                        /*para utilização do tipo bool*/
