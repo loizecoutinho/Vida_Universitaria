@@ -4,8 +4,6 @@
 #include <allegro5/allegro_primitives.h>    /*para desenhar formas como retângulos e círculos */
 #include <allegro5/allegro_ttf.h>           /* permite carregamento de fontes ttf e otf; cria textos bonitos */
 #include <allegro5/allegro_native_dialog.h> /*para caixa de mensagem */
-#include <allegro5/allegro_audio.h>	    /* para áudio*/
-#include <allegro5/allegro_acodec.h>	    /*para addons de codecs de audio*/
 #include <stdio.h>                          /*entrada e saída*/
 #include <string.h>
 #include <stdbool.h>                        /*para utilização do tipo bool*/
@@ -27,11 +25,11 @@ typedef struct{
 
 typedef struct{
     int livro;
-    int papel;
-    int comida;
-    int lixo;
-    int nota_baixa;
-    int perdeu_tarefa;
+    int notebook;
+    int garrafa;
+    int bloco_notas;
+    int diario;
+    int caderno;
 }obj_escolares;
 
 typedef struct{
@@ -58,9 +56,9 @@ int atualizar_quadrado(Objeto *q, ALLEGRO_DISPLAY* disp);
 bool checacolisaochao(Objeto *um, int chao_x, int chao_y, int largura_chao,int altura_chao);
 bool checacolisaopers(Objeto *um, int persx, int persy, int pers_larg, int pers_alt);
 void acelerar(Objeto *unicoquadrado);
-void mostrar_lista(obj_escolares *unico_objeto, ALLEGRO_FONT *font, int altura_tela);
+void mostrar_lista(obj_escolares *unico_objeto, ALLEGRO_FONT *font, ALLEGRO_FONT *font1, int altura_tela);
 void verificar_id(Objeto *unicoquadrado, obj_escolares *unico_obj);
-void draw_game_over_screen(ALLEGRO_FONT *font, obj_escolares *unico_objeto, int altura_tela); // Função para desenhar a tela de Game Over
+void draw_game_over_screen(ALLEGRO_FONT *font, ALLEGRO_FONT *font1, obj_escolares *unico_objeto, int altura_tela); // Função para desenhar a tela de Game Over
 void reset_game_state(void); // Função para reiniciar todas as variáveis do jogo
 
 int main(){
@@ -121,6 +119,7 @@ int main(){
 	ALLEGRO_BITMAP *personagem = al_load_bitmap("personagem.png");
 	ALLEGRO_BITMAP *background = al_load_bitmap("background.png");
 	ALLEGRO_BITMAP *font = al_load_font("PressStart2P-Regular.ttf", 24, 0);
+    ALLEGRO_BITMAP *font1 = al_load_font("PressStart2P-Regular.ttf", 28, 0);
 
 	//verificar se imagem carregou
 	if(!personagem){
@@ -149,12 +148,12 @@ int main(){
     //variaveis para os objetos
 
 	unicoquadrado.ativo = false;
-	unico_objeto.comida =0;
-    unico_objeto.papel=0;
-    unico_objeto.livro=0;
-    unico_objeto.lixo=0;
-    unico_objeto.nota_baixa= 0;
-    unico_objeto.perdeu_tarefa=0;
+	unico_objeto.livro=0;
+	unico_objeto.notebook =0;
+    unico_objeto.garrafa=0;
+    unico_objeto.bloco_notas=0;
+    unico_objeto.diario= 0;
+    unico_objeto.caderno=0;
 
 
 	int coordenadasimg[4][4] = {
@@ -248,7 +247,7 @@ if(game_state==PLAYING){
             sair_programa = true;
 
         }else if(game_state==GAME_OVER){
-            draw_game_over_screen(font, &unico_objeto, altura_tela);
+            draw_game_over_screen(font, font1, &unico_objeto, altura_tela);
         }// Quando entra em GAME_OVER
 
         // --- Seção de Desenho (só executa quando necessário) ---
@@ -290,12 +289,20 @@ if(game_state==PLAYING){
             }
 
         }
-
         al_draw_textf(
             font,
-            al_map_rgb(255,255,0), //cor: amarelo
+            al_map_rgb(155,155,155), //cor: amarelo
+            800/2 + 3,                 //centro da tela
+            43,                    //posição y
+            ALLEGRO_ALIGN_CENTER,  //centralizar
+            "VIDA: %d",
+            vida
+        );
+        al_draw_textf(
+            font,
+            al_map_rgb(255,0,0), //cor: amarelo
             800/2,                 //centro da tela
-            30,                    //posição y
+            40,                    //posição y
             ALLEGRO_ALIGN_CENTER,  //centralizar
             "VIDA: %d",
             vida
@@ -303,9 +310,18 @@ if(game_state==PLAYING){
 
         al_draw_textf(
             font,
+            al_map_rgb(150,150,150), //cor: amarelo
+            800/2 + 3,                 //centro da tela
+            10,                    //posição y- perto do topo
+            ALLEGRO_ALIGN_CENTER,  //centralizar
+            "PONTUAÇÃO: %d",
+            pontuacao
+        );
+        al_draw_textf(
+            font,
             al_map_rgb(255,255,0), //cor: amarelo
             800/2,                 //centro da tela
-            20,                    //posição y- perto do topo
+            10,                    //posição y- perto do topo
             ALLEGRO_ALIGN_CENTER,  //centralizar
             "PONTUAÇÃO: %d",
             pontuacao
@@ -352,7 +368,7 @@ if(game_state==PLAYING){
             }
 
         if(game_state==GAME_OVER){
-        draw_game_over_screen(font, &unico_objeto, altura_tela);
+        draw_game_over_screen(font, font1, &unico_objeto, altura_tela);
 
             if (al_key_down(&keyState, ALLEGRO_KEY_ENTER)) { // Quando ENTER é pressionado
                     reset_game_state(); // A função de reiniciar é chamada aqui!
@@ -405,36 +421,59 @@ void verificar_id(Objeto *unicoquadrado, obj_escolares *unico_obj){
         unico_obj->livro++;
     }
     if(unicoquadrado->id==2){
-        unico_obj->perdeu_tarefa++;
+        unico_obj->notebook++;
     }
     if(unicoquadrado->id==3){
-        unico_obj->comida++;
+        unico_obj->garrafa++;
     }
     if(unicoquadrado->id==4){
-        unico_obj->papel++;
+        unico_obj->bloco_notas++;
     }
     if(unicoquadrado->id==5){
-        unico_obj->lixo++;
+        unico_obj->diario++;
     }
     if(unicoquadrado->id==6){
-        unico_obj->nota_baixa++;
+        unico_obj->caderno++;
     }
 }
 
-void mostrar_lista(obj_escolares *unico_obj, ALLEGRO_FONT *font, int altura_tela){
-    al_draw_textf(font, al_map_rgb(180, 120, 0), 800/2, 280, ALLEGRO_ALIGN_CENTER,
-    "CARDAPIO COLETADO");
-    al_draw_textf(font, al_map_rgb(180, 120, 0), 800/2, 300 +30, ALLEGRO_ALIGN_CENTER,
-    "Livros: %d", unico_obj->livro);
-    al_draw_textf(font, al_map_rgb(180, 120, 0), 800/2, 300 +60, ALLEGRO_ALIGN_CENTER,
-    "Terefa: %d", unico_obj->papel);
-    al_draw_textf(font, al_map_rgb(180, 120, 0), 800/2, 300 +90, ALLEGRO_ALIGN_CENTER,
-    "Comida: %d", unico_obj->comida);
-    al_draw_textf(font, al_map_rgb(180, 120, 0), 800/2, 300 +120, ALLEGRO_ALIGN_CENTER,
-    "Perdeu Tarefa: %d", unico_obj->perdeu_tarefa);
-    al_draw_textf(font, al_map_rgb(180, 120, 0), 800/2, 300 +150, ALLEGRO_ALIGN_CENTER,
-    "Nota Baixas: %d", unico_obj->nota_baixa);
+void mostrar_lista(obj_escolares *unico_obj, ALLEGRO_FONT *font, ALLEGRO_FONT *font1, int altura_tela){
 
+    al_draw_textf(font1, al_map_rgb(180, 255, 0), 800/2, 80, ALLEGRO_ALIGN_CENTER,
+    "CARDAPIO COLETADO");
+    al_draw_textf(font1, al_map_rgb(155, 155, 155), 800/2, 83, ALLEGRO_ALIGN_CENTER,
+    "CARDAPIO COLETADO");
+    al_draw_textf(font, al_map_rgb(255, 255, 255), 800/2, 100 +30, ALLEGRO_ALIGN_CENTER,
+    "Livros: %d", unico_obj->livro);
+    al_draw_textf(font, al_map_rgb(255, 255, 255), 800/2, 100 +60, ALLEGRO_ALIGN_CENTER,
+    "NOtebook's: %d", unico_obj->notebook);
+    al_draw_textf(font, al_map_rgb(255, 255, 255), 800/2, 100 +90, ALLEGRO_ALIGN_CENTER,
+    "Garrafas: %d", unico_obj->garrafa);
+    al_draw_textf(font, al_map_rgb(255, 255, 255), 800/2, 100 +120, ALLEGRO_ALIGN_CENTER,
+    "Bloco de Notas: %d", unico_obj->bloco_notas);
+    al_draw_textf(font, al_map_rgb(255, 255, 255), 800/2, 100 +150, ALLEGRO_ALIGN_CENTER,
+    "Diários: %d", unico_obj->diario);
+    al_draw_textf(font, al_map_rgb(255, 255, 255), 800/2, 100 +180, ALLEGRO_ALIGN_CENTER,
+    "Caderno: %d", unico_obj->caderno);
+
+    const int contador_total = 10;
+    static int cor_delay =5;
+    static int cor_atual = 0;
+    static int cor_frame = 0;
+    static ALLEGRO_COLOR cor = {0};
+    cor_frame++;
+
+    if(cor_frame>cor_delay){
+        cor_frame=0;
+        cor_atual++;
+            if(cor_atual>contador_total){
+               cor = al_map_rgb(rand()% 255, rand()%255, rand()%255);
+            cor_atual=0;
+            }
+    }
+
+    al_draw_text(font1, cor, 800/2, 100 + 300, ALLEGRO_ALIGN_CENTER,
+            "TENTE NOVAMENTE - ENTER");
 }
 
 
@@ -469,27 +508,27 @@ void acelerarobj(Objeto *unicoquadrado){
         }
 }
 
-void draw_game_over_screen(ALLEGRO_FONT *font, obj_escolares *unico_objeto, int altura_tela){
+void draw_game_over_screen(ALLEGRO_FONT *font, ALLEGRO_FONT *font1, obj_escolares *unico_objeto, int altura_tela){
      al_clear_to_color(al_map_rgb(0,0,0));
                 al_draw_text(
                     font,
                     al_map_rgb(255, 0, 0),
                      800/ 2,
-                    altura_tela - 500,
+                    altura_tela - 100,
                     ALLEGRO_ALIGN_CENTER,
                     "GAME OVER");
-    mostrar_lista(unico_objeto, font, altura_tela);
+    mostrar_lista(unico_objeto, font, font1, altura_tela);
 } // Função para desenhar a tela de Game Over
 
 void reset_game_state(void){
     pontuacao = 0;
     vida =3;
     unico_objeto.livro =0;
-    unico_objeto.papel=0;
-    unico_objeto.comida=0;
-    unico_objeto.lixo=0;
-    unico_objeto.nota_baixa=0;
-    unico_objeto.perdeu_tarefa=0;
+    unico_objeto.notebook=0;
+    unico_objeto.garrafa=0;
+    unico_objeto.bloco_notas=0;
+    unico_objeto.diario=0;
+    unico_objeto.caderno=0;
     unicoquadrado.ativo=false;
     game_state=PLAYING;
     aux_velocidade = 0;
