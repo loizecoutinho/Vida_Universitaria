@@ -4,12 +4,16 @@
 #include <allegro5/allegro_primitives.h>    /*para desenhar formas como retângulos e círculos */
 #include <allegro5/allegro_ttf.h>           /* permite carregamento de fontes ttf e otf; cria textos bonitos */
 #include <allegro5/allegro_native_dialog.h> /*para caixa de mensagem */
+#include <allegro5/allegro_audio.h>	        /* para áudio*/
+#include <allegro5/allegro_acodec.h>	    /*para addons de codecs de audio*/
 #include <stdio.h>                          /*entrada e saída*/
 #include <string.h>
 #include <stdbool.h>                        /*para utilização do tipo bool*/
 #include <errno.h>                          /*habilita a var global de erro "errno"*/
 #include <time.h>
 #include <stdlib.h>
+
+#define BGM_FILE "School.ogg" //definindo caminho para o arquivo
 
 int pontuacao = 0;//pontuação inicial; variavel global
 int vida = 3; //quantidade de vida inicial
@@ -69,6 +73,26 @@ int main(){
         al_show_native_message_box(NULL, "Erro","Falha ao inicializar a Biblioteca", "TOP",NULL, ALLEGRO_MESSAGEBOX_WARN);
 		return 1;
 	}
+
+    bool al_install_audio();//inicializa o addon de audio
+    if(!al_install_audio()){
+        al_show_native_message_box(NULL, "Erro","Falha ao inicializar o áudio", "TOP",NULL, ALLEGRO_MESSAGEBOX_WARN);
+		return 1;
+    }
+
+    al_init_acodec_addon();//inicializa o addon de codecs para o áudio(habilita para o formato OGG)
+    if(!al_init_acodec_addon()){
+        al_show_native_message_box(NULL, "Erro","Falha ao inicializar o addon de codecs do áudi", "TOP",NULL, ALLEGRO_MESSAGEBOX_WARN);
+		return 1;
+    }
+
+    //cria automaticamente o mixer
+    al_reserve_samples(0);//reserva de samples, caso seja necessario usar algumas vozes
+    if (!al_reserve_samples(0)) {
+        fprintf(stderr, "Falha ao reservar samples!\n");
+        // Não é um erro crítico para streams
+    }
+
     //INICIA O TEMPO E DEFINE
     ALLEGRO_TIMER* timer = al_create_timer(1.0 / 60.0);//atualização de frames; 60 frames por segundo
 	ALLEGRO_EVENT_QUEUE* queue = al_create_event_queue();//fila que irá armazenar eventos, como a sequencia de teclas apertadas pelo user;
@@ -197,7 +221,14 @@ int main(){
     ALLEGRO_KEYBOARD_STATE keyState; //lê o estado do teclado
 	al_start_timer(timer);
 
+    al_create_audio_stream(4, 2048, 44100, ALLEGRO_AUDIO_DEPTH_INT16, ALLEGRO_CHANNEL_CONF_2);
+    ALLEGRO_AUDIO_STREAM *bgm_stream;
+    bgm_stream = al_load_audio_stream(BGM_FILE, 4, 2048);
 
+    al_attach_audio_stream_to_mixer(bgm_stream, al_get_default_mixer());//aneza o stream ao mixer
+    if (!al_attach_audio_stream_to_mixer(bgm_stream, al_get_default_mixer())) {
+        fprintf(stderr, "Falha ao anexar o stream ao mixer!\n");
+    }
 
 
 	//inicie a logica pro jogo
@@ -415,6 +446,8 @@ if(game_state==PLAYING){
     al_destroy_display(disp);
     al_destroy_timer(timer);
     al_destroy_event_queue(queue);
+    al_destroy_audio_stream(bgm_stream);
+    al_uninstall_audio();
 
     return 0;
 }
