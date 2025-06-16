@@ -74,8 +74,8 @@ int main(){
 		return 1;
 	}
 
-    bool al_install_audio();//inicializa o addon de audio
-    if(!al_install_audio()){
+    al_install_audio();//inicializa o addon de audio
+    if(!al_install_audio){
         al_show_native_message_box(NULL, "Erro","Falha ao inicializar o áudio", "TOP",NULL, ALLEGRO_MESSAGEBOX_WARN);
 		return 1;
     }
@@ -229,7 +229,7 @@ int main(){
     if (!al_attach_audio_stream_to_mixer(bgm_stream, al_get_default_mixer())) {
         fprintf(stderr, "Falha ao anexar o stream ao mixer!\n");
     }
-
+    al_set_audio_stream_gain(bgm_stream, 2.0);//volume
 
 	//inicie a logica pro jogo
 	while(!sair_programa){
