@@ -4,8 +4,6 @@
 #include <allegro5/allegro_primitives.h>    /*para desenhar formas como retângulos e círculos */
 #include <allegro5/allegro_ttf.h>           /* permite carregamento de fontes ttf e otf; cria textos bonitos */
 #include <allegro5/allegro_native_dialog.h> /*para caixa de mensagem */
-#include <allegro5/allegro_audio.h>	        /* para áudio*/
-#include <allegro5/allegro_acodec.h>	    /*para addons de codecs de audio*/
 #include <stdio.h>                          /*entrada e saída*/
 #include <string.h>
 #include <stdbool.h>                        /*para utilização do tipo bool*/
@@ -13,8 +11,7 @@
 #include <time.h>
 #include <stdlib.h>
 
-#define BGM_FILE "School.ogg" //definindo caminho para o arquivo
-
+int record=0;
 int pontuacao = 0;//pontuação inicial; variavel global
 int vida = 3; //quantidade de vida inicial
 int aux_velocidade = 0;
@@ -51,7 +48,9 @@ Objeto unicoquadrado;
 
 typedef enum {
     PLAYING,    // O jogo está ativo e rodando
-    GAME_OVER   // O jogo acabou
+    GAME_OVER,   // O jogo acabou
+    PAUSE,   //jogo pausado
+    MENU     //jogo no menu
 } GameState;
 
 GameState game_state;
@@ -59,7 +58,7 @@ GameState game_state;
 //funcoes prototipo
 int atualizar_quadrado(Objeto *unicoquadrado, int coordenadasobjs[][4], ALLEGRO_DISPLAY* disp);
 bool checacolisaochao(Objeto *um, int chao_x, int chao_y, int largura_chao,int altura_chao);
-bool checacolisaopers(Objeto *um, int persx, int persy, int pers_larg, int pers_alt);
+bool checacolisaopers(Objeto *um, int persx, int persy, int pers_larg, int pers_alt,int record);
 void acelerar(Objeto *unicoquadrado);//acelera os objetos
 void mostrar_lista(obj_escolares *unico_objeto, ALLEGRO_FONT *font, ALLEGRO_FONT *font1, int altura_tela);
 void verificar_id(Objeto *unicoquadrado, obj_escolares *unico_obj);
@@ -73,26 +72,6 @@ int main(){
         al_show_native_message_box(NULL, "Erro","Falha ao inicializar a Biblioteca", "TOP",NULL, ALLEGRO_MESSAGEBOX_WARN);
 		return 1;
 	}
-
-    al_install_audio();//inicializa o addon de audio
-    if(!al_install_audio){
-        al_show_native_message_box(NULL, "Erro","Falha ao inicializar o áudio", "TOP",NULL, ALLEGRO_MESSAGEBOX_WARN);
-		return 1;
-    }
-
-    al_init_acodec_addon();//inicializa o addon de codecs para o áudio(habilita para o formato OGG)
-    if(!al_init_acodec_addon()){
-        al_show_native_message_box(NULL, "Erro","Falha ao inicializar o addon de codecs do áudi", "TOP",NULL, ALLEGRO_MESSAGEBOX_WARN);
-		return 1;
-    }
-
-    //cria automaticamente o mixer
-    al_reserve_samples(0);//reserva de samples, caso seja necessario usar algumas vozes
-    if (!al_reserve_samples(0)) {
-        fprintf(stderr, "Falha ao reservar samples!\n");
-        // Não é um erro crítico para streams
-    }
-
     //INICIA O TEMPO E DEFINE
     ALLEGRO_TIMER* timer = al_create_timer(1.0 / 60.0);//atualização de frames; 60 frames por segundo
 	ALLEGRO_EVENT_QUEUE* queue = al_create_event_queue();//fila que irá armazenar eventos, como a sequencia de teclas apertadas pelo user;
@@ -142,12 +121,16 @@ int main(){
 
 
 	//adicione as imagens, bitmap
+	ALLEGRO_BITMAP *fundo_menu = al_load_bitmap("fundomenuuni1.jpg");
 	ALLEGRO_BITMAP *personagem = al_load_bitmap("personagem.png");
 	ALLEGRO_BITMAP *background = al_load_bitmap("background.png");
 	ALLEGRO_BITMAP *objetos1 = al_load_bitmap("objetos.png");
 	ALLEGRO_BITMAP *font = al_load_font("PressStart2P-Regular.ttf", 24, 0);
     ALLEGRO_BITMAP *font1 = al_load_font("PressStart2P-Regular.ttf", 28, 0);
 
+    ALLEGRO_FONT* fonte_titulo = al_load_ttf_font("PressStart2P-Regular.ttf", 32, 0);//fonte press start 2p para titulo no menu
+	ALLEGRO_FONT* fonte_opcoes = al_load_ttf_font("PressStart2P-Regular.ttf", 20, 0);//fonte press start 2p para opções no menu
+	ALLEGRO_FONT* fonte_pause = al_load_ttf_font("PressStart2P-Regular.ttf", 15, 0);//fonte press start 2p para opções no menu
 
     al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
     al_convert_mask_to_alpha(personagem, al_map_rgb(255, 0, 255));//define a cor transparente para a imagem
@@ -221,16 +204,9 @@ int main(){
     ALLEGRO_KEYBOARD_STATE keyState; //lê o estado do teclado
 	al_start_timer(timer);
 
-    al_create_audio_stream(6, 2048, 44100, ALLEGRO_AUDIO_DEPTH_INT16, ALLEGRO_CHANNEL_CONF_2);
-    ALLEGRO_AUDIO_STREAM *bgm_stream;
-    bgm_stream = al_load_audio_stream(BGM_FILE, 6, 2048);
 
-    al_attach_audio_stream_to_mixer(bgm_stream, al_get_default_mixer());//anexa o stream ao mixer
-    if (!al_attach_audio_stream_to_mixer(bgm_stream, al_get_default_mixer())) {
-        fprintf(stderr, "Falha ao anexar o stream ao mixer!\n");
-    }
-    al_set_audio_stream_gain(bgm_stream, 1.0);//volume
 
+    game_state = MENU;
 	//inicie a logica pro jogo
 	while(!sair_programa){
 
@@ -244,6 +220,7 @@ int main(){
 
 if(game_state==PLAYING){
 
+
             // Movimento do personagem
             if(al_key_down(&keyState, ALLEGRO_KEY_LEFT)) {
                 persx -= 5;
@@ -256,7 +233,9 @@ if(game_state==PLAYING){
             if(al_key_down(&keyState, ALLEGRO_KEY_ESCAPE)){
                 sair_programa = true;
             }
-
+            if(al_key_down(&keyState, ALLEGRO_KEY_P)){
+                game_state = PAUSE;
+            }
 
 			//Animação do personagem
             frame_count++;
@@ -289,13 +268,67 @@ if(game_state==PLAYING){
 
             redesenhar = true;
 
+
+
         // Se o evento for fechar a janela
         }else if(event.type == ALLEGRO_EVENT_DISPLAY_CLOSE || al_key_down(&keyState, ALLEGRO_KEY_ESCAPE)) {
             sair_programa = true;
 
         }else if(game_state==GAME_OVER){
+            if (al_key_down(&keyState, ALLEGRO_KEY_ENTER)) { // Quando ENTER é pressionado
+                    reset_game_state(); // A função de reiniciar é chamada aqui!
+                    redesenhar = true;  // Força um redesenho para a nova partida
+
+            }
+
             draw_game_over_screen(font, font1, &unico_objeto, altura_tela);
         }// Quando entra em GAME_OVER
+
+        else if(game_state==MENU){
+
+            reset_game_state();
+
+            al_draw_bitmap(fundo_menu, 0, 0, NULL); // desenha o fundo da tela inicial
+            al_draw_text(fonte_titulo, al_map_rgb(0,0,0), 396, 100, ALLEGRO_ALIGN_CENTER, "VIDA UNIVERSITÁRIA");
+            al_draw_text(fonte_titulo, al_map_rgb(255,255,255), 400, 100, ALLEGRO_ALIGN_CENTER, "VIDA UNIVERSITÁRIA");
+            //"duplicado" pois criei uma em preto e outra em branco pra ser meio que a borda e dar contraste com a nuvem
+            al_draw_text(fonte_opcoes, al_map_rgb(0,0,0), 396, 350, ALLEGRO_ALIGN_CENTER, "Pressione ENTER para jogar");
+            al_draw_text(fonte_opcoes, al_map_rgb(0,0,0), 396, 400, ALLEGRO_ALIGN_CENTER, "Pressione ESC para sair");
+            al_draw_text(fonte_opcoes, al_map_rgb(255,255,255), 400, 350, ALLEGRO_ALIGN_CENTER, "Pressione ENTER para jogar");
+            al_draw_text(fonte_opcoes, al_map_rgb(255,255,255), 400, 400, ALLEGRO_ALIGN_CENTER, "Pressione ESC para sair");;
+            al_draw_textf(fonte_titulo, al_map_rgb(0,0,0), 396, 500, ALLEGRO_ALIGN_CENTER, "RECORDE NA SESSÃO: %d",record);
+            al_draw_textf(fonte_titulo, al_map_rgb(255,255,0), 400, 500, ALLEGRO_ALIGN_CENTER, "RECORDE NA SESSÃO: %d",record);
+            // joga na tela
+
+
+
+            if(al_key_down(&keyState, ALLEGRO_KEY_ESCAPE)){
+                sair_programa = true;
+            }
+            if(al_key_down(&keyState, ALLEGRO_KEY_ENTER)){
+                game_state=PLAYING;
+            }
+
+        }
+        else if(game_state == PAUSE){
+            al_draw_bitmap(fundo_menu, 0, 0, NULL); // desenha o fundo da tela inicial;
+            al_draw_text(fonte_titulo, al_map_rgb(0,0,0), 396, 100, ALLEGRO_ALIGN_CENTER, "JOGO PAUSADO");
+            al_draw_text(fonte_titulo, al_map_rgb(255,255,255), 400, 100, ALLEGRO_ALIGN_CENTER, "JOGO PAUSADO");
+            al_draw_text(fonte_opcoes, al_map_rgb(0,0,0), 396, 350, ALLEGRO_ALIGN_CENTER, "Pressione ENTER para RETOMAR");
+            al_draw_text(fonte_opcoes, al_map_rgb(255,255,255), 400, 350, ALLEGRO_ALIGN_CENTER, "Pressione ENTER para RETOMAR");
+            al_draw_text(fonte_opcoes, al_map_rgb(0,0,0), 396, 400, ALLEGRO_ALIGN_CENTER, "Pressione M para MENU");
+            al_draw_text(fonte_opcoes, al_map_rgb(255,255,255), 400, 400, ALLEGRO_ALIGN_CENTER, "Pressione M para MENU");
+
+
+            if(al_key_down(&keyState, ALLEGRO_KEY_ENTER)){
+                game_state=PLAYING;
+            }
+            if(al_key_down(&keyState, ALLEGRO_KEY_M)){
+                game_state=MENU;
+            }
+
+        }
+
 
         // --- Seção de Desenho (só executa quando necessário) ---
         if(redesenhar) {
@@ -345,7 +378,9 @@ if(game_state==PLAYING){
             }
 
         }
-        al_draw_textf(
+
+if(game_state==PLAYING){
+    al_draw_textf(
             font,
             al_map_rgb(155,155,155), //cor: amarelo
             800/2 + 3,                 //centro da tela
@@ -373,6 +408,7 @@ if(game_state==PLAYING){
             "PONTUAÇÃO: %d",
             pontuacao
         );
+
         al_draw_textf(
             font,
             al_map_rgb(255,255,0), //cor: amarelo
@@ -383,7 +419,9 @@ if(game_state==PLAYING){
             pontuacao
         );
 
+        al_draw_text(fonte_pause, al_map_rgba(0,0,0,140), 116, 30, ALLEGRO_ALIGN_CENTER, "P PARA PAUSAR");
 
+        }
 	//chão
 	printf("Objeto: velo= %d, y=%d, tam_y=%d, Chão: y=%d, alt=%d\n",unicoquadrado.velo, unicoquadrado.posicao.y, unicoquadrado.tamanho.y, chao_y, altura_chao);
         if(checacolisaochao(&unicoquadrado, chao_x, chao_y, largura_chao, altura_chao)){
@@ -403,10 +441,15 @@ if(game_state==PLAYING){
         }
 
         //personagem
-        else if(checacolisaopers(&unicoquadrado, persx, persy, pers_larg, pers_alt)){
+        else if(checacolisaopers(&unicoquadrado, persx, persy, pers_larg, pers_alt, record)){
             if(unicoquadrado.ativo){//pro objeto sumir
             unicoquadrado.ativo = false;
             pontuacao++;
+
+            if(pontuacao>record){
+                record=pontuacao;
+            }
+
             al_draw_textf(
                 font,
                 al_map_rgb(255,255,0), //cor: amarelo
@@ -429,6 +472,7 @@ if(game_state==PLAYING){
             if (al_key_down(&keyState, ALLEGRO_KEY_ENTER)) { // Quando ENTER é pressionado
                     reset_game_state(); // A função de reiniciar é chamada aqui!
                     redesenhar = true;  // Força um redesenho para a nova partida
+                    game_state=PLAYING;
             }
         }// Quando entra em GAME_OVER
 
@@ -446,8 +490,10 @@ if(game_state==PLAYING){
     al_destroy_display(disp);
     al_destroy_timer(timer);
     al_destroy_event_queue(queue);
-    al_destroy_audio_stream(bgm_stream);
-    al_uninstall_audio();
+    al_destroy_bitmap(fundo_menu);
+    al_destroy_font(fonte_titulo);
+    al_destroy_font(fonte_opcoes);
+    al_destroy_font(fonte_pause);
 
     return 0;
 }
@@ -457,7 +503,7 @@ int atualizar_quadrado(Objeto *unicoquadrado, int coordenadasobjs[][4], ALLEGRO_
     if(!unicoquadrado->ativo){
         unicoquadrado->id = rand()% (5 - 0 + 1) + 0;
         frame_obj = unicoquadrado->id;
-        unicoquadrado->posicao.x = rand() % (al_get_display_width(disp)-coordenadasobjs[frame_obj][2]);
+        unicoquadrado->posicao.x = rand() % (al_get_display_width(disp));
         unicoquadrado->posicao.y = 0;
         unicoquadrado->cor = al_map_rgba(255, 0, 255, 0);
         unicoquadrado->velo = 2;
@@ -551,7 +597,7 @@ bool checacolisaochao(Objeto *um, int chao_x, int chao_y, int largura_chao, int 
     return /*colisaoX &&*/ colisaoY;
 }
 
-bool checacolisaopers(Objeto *um, int persx, int persy, int pers_larg, int pers_alt){
+bool checacolisaopers(Objeto *um, int persx, int persy, int pers_larg, int pers_alt, int record){
     //checa se há colisão no eixo x;
     bool colisaoX = um->posicao.x + um->tamanho.x >= persx &&
                     persx + pers_larg * 0.3 >= um->posicao.x;
@@ -593,6 +639,5 @@ void reset_game_state(void){
     unico_objeto.diario=0;
     unico_objeto.caderno=0;
     unicoquadrado.ativo=false;
-    game_state=PLAYING;
     aux_velocidade = 0;
 } // Função para reiniciar todas as variáveis do jogo
