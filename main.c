@@ -221,15 +221,15 @@ int main(){
     ALLEGRO_KEYBOARD_STATE keyState; //lê o estado do teclado
 	al_start_timer(timer);
 
-    al_create_audio_stream(4, 2048, 44100, ALLEGRO_AUDIO_DEPTH_INT16, ALLEGRO_CHANNEL_CONF_2);
+    al_create_audio_stream(6, 2048, 44100, ALLEGRO_AUDIO_DEPTH_INT16, ALLEGRO_CHANNEL_CONF_2);
     ALLEGRO_AUDIO_STREAM *bgm_stream;
-    bgm_stream = al_load_audio_stream(BGM_FILE, 4, 2048);
+    bgm_stream = al_load_audio_stream(BGM_FILE, 6, 2048);
 
-    al_attach_audio_stream_to_mixer(bgm_stream, al_get_default_mixer());//aneza o stream ao mixer
+    al_attach_audio_stream_to_mixer(bgm_stream, al_get_default_mixer());//anexa o stream ao mixer
     if (!al_attach_audio_stream_to_mixer(bgm_stream, al_get_default_mixer())) {
         fprintf(stderr, "Falha ao anexar o stream ao mixer!\n");
     }
-    al_set_audio_stream_gain(bgm_stream, 2.0);//volume
+    al_set_audio_stream_gain(bgm_stream, 1.0);//volume
 
 	//inicie a logica pro jogo
 	while(!sair_programa){
