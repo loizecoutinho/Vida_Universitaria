@@ -63,13 +63,15 @@ void mostrar_lista(obj_escolares *unico_objeto, ALLEGRO_FONT *font, ALLEGRO_FONT
 void verificar_id(Objeto *unicoquadrado, obj_escolares *unico_obj);
 void draw_game_over_screen(ALLEGRO_FONT *font, ALLEGRO_FONT *font1, obj_escolares *unico_objeto, int altura_tela); // Função para desenhar a tela de Game Over
 void reset_game_state(void); // Função para reiniciar todas as variáveis do jogo
+
 int main(){
-	al_init();
-	al_init_native_dialog_addon();
-	if(!al_init()){
+
+    if(!al_init()){
         al_show_native_message_box(NULL, "Erro","Falha ao inicializar a Biblioteca", "TOP",NULL, ALLEGRO_MESSAGEBOX_WARN);
 		return 1;
 	}
+
+	al_init_native_dialog_addon();
 
     al_install_audio();//inicializa o addon de audio
     if(!al_install_audio){
@@ -84,11 +86,18 @@ int main(){
     }
 
     //cria automaticamente o mixer
-    al_reserve_samples(0);//reserva de samples, caso seja necessario usar algumas vozes
-    if (!al_reserve_samples(0)) {
+    al_reserve_samples(16);//reserva de samples, caso seja necessario usar algumas vozes
+    if (!al_reserve_samples(16)) {
         fprintf(stderr, "Falha ao reservar samples!\n");
         // Não é um erro crítico para streams
     }
+
+    //carrega as funções de entrada
+    al_install_keyboard(); //carrega o teclado
+	al_init_image_addon(); //carregar imagens .bmp
+	al_init_primitives_addon(); //desenhar formas
+	al_init_font_addon();//inicia as fontes de texto
+	al_init_ttf_addon();//pode usar fontes ttf
 
     //INICIA O TEMPO E DEFINE
     ALLEGRO_TIMER* timer = al_create_timer(1.0 / 60.0);//atualização de frames; 60 frames por segundo
@@ -114,12 +123,7 @@ int main(){
             NULL, ALLEGRO_MESSAGEBOX_ERROR);
         exit(1); // Encerra o programa
     }
-    //carrega as funções de entrada
-    al_install_keyboard(); //carrega o teclado
-	al_init_image_addon(); //carregar imagens .bmp
-	al_init_primitives_addon(); //desenhar formas
-	al_init_font_addon();//inicia as fontes de texto
-	al_init_ttf_addon();//pode usar fontes ttf
+
 	//ALLEGRO_FONT* font = al_create_builtin_font();//fonte padrão
 	al_register_event_source(queue, al_get_keyboard_event_source()); //registra na fila de evento as ações do user com o teclado;
 	al_register_event_source(queue, al_get_display_event_source(disp));//registra na fila de evento as ações no display;
@@ -132,8 +136,8 @@ int main(){
 	ALLEGRO_BITMAP *personagem = al_load_bitmap("personagem.png");
 	ALLEGRO_BITMAP *background = al_load_bitmap("background.png");
 	ALLEGRO_BITMAP *objetos1 = al_load_bitmap("objetos.png");
-	ALLEGRO_BITMAP *font = al_load_font("PressStart2P-Regular.ttf", 24, 0);
-    ALLEGRO_BITMAP *font1 = al_load_font("PressStart2P-Regular.ttf", 28, 0);
+	ALLEGRO_FONT *font = al_load_font("PressStart2P-Regular.ttf", 24, 0);
+    ALLEGRO_FONT *font1 = al_load_font("PressStart2P-Regular.ttf", 28, 0);
 
     ALLEGRO_FONT* fonte_titulo = al_load_ttf_font("PressStart2P-Regular.ttf", 32, 0);//fonte press start 2p para titulo no menu
 	ALLEGRO_FONT* fonte_opcoes = al_load_ttf_font("PressStart2P-Regular.ttf", 20, 0);//fonte press start 2p para opções no menu
@@ -198,15 +202,19 @@ int main(){
     ALLEGRO_KEYBOARD_STATE keyState; //lê o estado do teclado
 	al_start_timer(timer);
 
-    al_create_audio_stream(6, 2048, 44100, ALLEGRO_AUDIO_DEPTH_INT16, ALLEGRO_CHANNEL_CONF_2);
-    ALLEGRO_AUDIO_STREAM *bgm_stream;
-    bgm_stream = al_load_audio_stream(BGM_FILE, 6, 2048);
-
-    al_attach_audio_stream_to_mixer(bgm_stream, al_get_default_mixer());//anexa o stream ao mixer
-    if (!al_attach_audio_stream_to_mixer(bgm_stream, al_get_default_mixer())) {
-        fprintf(stderr, "Falha ao anexar o stream ao mixer!\n");
+    //al_create_audio_stream(6, 2048, 44100, ALLEGRO_AUDIO_DEPTH_INT16, ALLEGRO_CHANNEL_CONF_2);
+    ALLEGRO_AUDIO_STREAM *bgm_stream = al_load_audio_stream(BGM_FILE, 4, 2048); // Buffer size 4 é um bom valor.
+    if (!bgm_stream) {
+        fprintf(stderr, "Falha ao carregar stream de áudio: %s\n", BGM_FILE);
+        // Não é um erro crítico que impeça o jogo de rodar, mas o áudio não funcionará.
+    } else {
+        if (!al_attach_audio_stream_to_mixer(bgm_stream, al_get_default_mixer())) {
+            fprintf(stderr, "Falha ao anexar o stream ao mixer!\n");
+        }
+        al_set_audio_stream_gain(bgm_stream, 0.7); // Volume ajustado para 0.7 (ou o que preferir)
+        al_set_audio_stream_playing(bgm_stream, true); // Começa a tocar o BGM
     }
-    al_set_audio_stream_gain(bgm_stream, 1.0);//volume
+
 
     game_state = MENU;
 	//inicie a logica pro jogo
