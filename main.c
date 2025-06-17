@@ -131,7 +131,7 @@ int main(){
 
 
 	//adicione as imagens, bitmap
-	ALLEGRO_BITMAP *fundo_menu = al_load_bitmap("fundomenuuni1.jpg");
+	ALLEGRO_BITMAP *fundo_menu = al_load_bitmap("fundomenuuni1.png");
 	ALLEGRO_BITMAP *personagem = al_load_bitmap("personagem.png");
 	ALLEGRO_BITMAP *background = al_load_bitmap("background.png");
 	ALLEGRO_BITMAP *objetos1 = al_load_bitmap("objetos.png");
