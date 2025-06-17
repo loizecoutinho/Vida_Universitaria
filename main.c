@@ -116,7 +116,6 @@ int main(){
         disp = al_create_display(800, 600);
     }
 	if (!disp) {
-        //char erro_msg[256];-> não é necessario
         al_show_native_message_box(NULL,
             "Erro Crítico",
             "Impossível iniciar a Biblioteca","full",
@@ -202,7 +201,7 @@ int main(){
     ALLEGRO_KEYBOARD_STATE keyState; //lê o estado do teclado
 	al_start_timer(timer);
 
-    //al_create_audio_stream(6, 2048, 44100, ALLEGRO_AUDIO_DEPTH_INT16, ALLEGRO_CHANNEL_CONF_2);
+    al_create_audio_stream(6, 2048, 44100, ALLEGRO_AUDIO_DEPTH_INT16, ALLEGRO_CHANNEL_CONF_2);
     ALLEGRO_AUDIO_STREAM *bgm_stream = al_load_audio_stream(BGM_FILE, 4, 2048); // Buffer size 4 é um bom valor.
     if (!bgm_stream) {
         fprintf(stderr, "Falha ao carregar stream de áudio: %s\n", BGM_FILE);
