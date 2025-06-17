@@ -488,7 +488,7 @@ int atualizar_quadrado(Objeto *unicoquadrado, int coordenadasobjs[][4], ALLEGRO_
         frame_obj = unicoquadrado->id;
         unicoquadrado->posicao.x = rand() % (al_get_display_width(disp)- coordenadasobjs[frame_obj][2]);
         unicoquadrado->posicao.y = 0;
-        unicoquadrado->cor = al_map_rgba(255, 0, 255, 255);
+        unicoquadrado->cor = al_map_rgba(255, 0, 255, 0);
         unicoquadrado->velo = 2;
         unicoquadrado->tamanho.x = coordenadasobjs[frame_obj][2];
         unicoquadrado->tamanho.y = 30;
