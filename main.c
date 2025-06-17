@@ -138,8 +138,8 @@ int main(){
 	ALLEGRO_FONT *font = al_load_font("PressStart2P-Regular.ttf", 24, 0);
     ALLEGRO_FONT *font1 = al_load_font("PressStart2P-Regular.ttf", 28, 0);
 
-    ALLEGRO_FONT* fonte_titulo = al_load_ttf_font("PressStart2P-Regular.ttf", 32, 0);//fonte press start 2p para titulo no menu
-	ALLEGRO_FONT* fonte_opcoes = al_load_ttf_font("PressStart2P-Regular.ttf", 20, 0);//fonte press start 2p para opções no menu
+    ALLEGRO_FONT* fonte_titulo = al_load_ttf_font("PressStart2P-Regular.ttf", 28, 0);//fonte press start 2p para titulo no menu
+	ALLEGRO_FONT* fonte_opcoes = al_load_ttf_font("PressStart2P-Regular.ttf", 15, 0);//fonte press start 2p para opções no menu
 	ALLEGRO_FONT* fonte_pause = al_load_ttf_font("PressStart2P-Regular.ttf", 15, 0);//fonte press start 2p para opções no menu
 
     al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
@@ -228,13 +228,13 @@ int main(){
             reset_game_state();
 
             al_draw_bitmap(fundo_menu, 0, 0, NULL); // desenha o fundo da tela inicial
-            al_draw_text(fonte_titulo, al_map_rgb(0,0,0), 396, 100, ALLEGRO_ALIGN_CENTER, "VIDA UNIVERSITÁRIA");
-            al_draw_text(fonte_titulo, al_map_rgb(255,255,255), 400, 100, ALLEGRO_ALIGN_CENTER, "VIDA UNIVERSITÁRIA");
+            //al_draw_text(fonte_titulo, al_map_rgb(0,0,0), 396, 100, ALLEGRO_ALIGN_CENTER, "VIDA UNIVERSITÁRIA");
+            //al_draw_text(fonte_titulo, al_map_rgb(255,255,255), 400, 100, ALLEGRO_ALIGN_CENTER, "VIDA UNIVERSITÁRIA");
             //"duplicado" pois criei uma em preto e outra em branco pra ser meio que a borda e dar contraste com a nuvem
-            al_draw_text(fonte_opcoes, al_map_rgb(0,0,0), 396, 350, ALLEGRO_ALIGN_CENTER, "Pressione ENTER para jogar");
-            al_draw_text(fonte_opcoes, al_map_rgb(0,0,0), 396, 400, ALLEGRO_ALIGN_CENTER, "Pressione ESC para sair");
-            al_draw_text(fonte_opcoes, al_map_rgb(255,255,255), 400, 350, ALLEGRO_ALIGN_CENTER, "Pressione ENTER para jogar");
-            al_draw_text(fonte_opcoes, al_map_rgb(255,255,255), 400, 400, ALLEGRO_ALIGN_CENTER, "Pressione ESC para sair");;
+            al_draw_text(fonte_opcoes, al_map_rgb(0,0,0), 416, 320, ALLEGRO_ALIGN_CENTER, "Pressione ENTER para jogar");
+            al_draw_text(fonte_opcoes, al_map_rgb(0,0,0), 410, 415, ALLEGRO_ALIGN_CENTER, "Pressione ESC para sair");
+            al_draw_text(fonte_opcoes, al_map_rgb(255,255,255), 420, 320, ALLEGRO_ALIGN_CENTER, "Pressione ENTER para jogar");
+            al_draw_text(fonte_opcoes, al_map_rgb(255,255,255), 414, 415, ALLEGRO_ALIGN_CENTER, "Pressione ESC para sair");;
             al_draw_textf(fonte_titulo, al_map_rgb(0,0,0), 396, 500, ALLEGRO_ALIGN_CENTER, "RECORDE NA SESSÃO: %d",record);
             al_draw_textf(fonte_titulo, al_map_rgb(255,255,0), 400, 500, ALLEGRO_ALIGN_CENTER, "RECORDE NA SESSÃO: %d",record);
             // joga na tela
@@ -400,12 +400,22 @@ int main(){
 
     }else if(game_state == PAUSE){
             al_draw_bitmap(fundo_menu, 0, 0, NULL); // desenha o fundo da tela inicial;
-            al_draw_text(fonte_titulo, al_map_rgb(0,0,0), 396, 100, ALLEGRO_ALIGN_CENTER, "JOGO PAUSADO");
-            al_draw_text(fonte_titulo, al_map_rgb(255,255,255), 400, 100, ALLEGRO_ALIGN_CENTER, "JOGO PAUSADO");
-            al_draw_text(fonte_opcoes, al_map_rgb(0,0,0), 396, 350, ALLEGRO_ALIGN_CENTER, "Pressione ENTER para RETOMAR");
-            al_draw_text(fonte_opcoes, al_map_rgb(255,255,255), 400, 350, ALLEGRO_ALIGN_CENTER, "Pressione ENTER para RETOMAR");
-            al_draw_text(fonte_opcoes, al_map_rgb(0,0,0), 396, 400, ALLEGRO_ALIGN_CENTER, "Pressione M para MENU");
-            al_draw_text(fonte_opcoes, al_map_rgb(255,255,255), 400, 400, ALLEGRO_ALIGN_CENTER, "Pressione M para MENU");
+            al_draw_text(fonte_titulo, al_map_rgb(0,0,0), 396, 265, ALLEGRO_ALIGN_CENTER, "JOGO PAUSADO");
+            al_draw_text(fonte_titulo, al_map_rgb(255,255,255), 400, 265, ALLEGRO_ALIGN_CENTER, "JOGO PAUSADO");
+            al_draw_text(fonte_opcoes, al_map_rgb(0,0,0), 416, 320, ALLEGRO_ALIGN_CENTER, "Pressione ENTER para RETOMAR");
+            al_draw_text(fonte_opcoes, al_map_rgb(255,255,255), 420, 320, ALLEGRO_ALIGN_CENTER, "Pressione ENTER para RETOMAR");
+            al_draw_text(fonte_opcoes, al_map_rgb(0,0,0), 410, 415, ALLEGRO_ALIGN_CENTER, "Pressione M para MENU");
+            al_draw_text(fonte_opcoes, al_map_rgb(255,255,255), 414, 415, ALLEGRO_ALIGN_CENTER, "Pressione M para MENU");
+
+            /*
+            al_draw_text(fonte_opcoes, al_map_rgb(0,0,0), 416, 320, ALLEGRO_ALIGN_CENTER, "Pressione ENTER para jogar");
+            al_draw_text(fonte_opcoes, al_map_rgb(0,0,0), 410, 415, ALLEGRO_ALIGN_CENTER, "Pressione ESC para sair");
+            al_draw_text(fonte_opcoes, al_map_rgb(255,255,255), 420, 320, ALLEGRO_ALIGN_CENTER, "Pressione ENTER para jogar");
+            al_draw_text(fonte_opcoes, al_map_rgb(255,255,255), 414, 415, ALLEGRO_ALIGN_CENTER, "Pressione ESC para sair");;
+            al_draw_textf(fonte_titulo, al_map_rgb(0,0,0), 396, 500, ALLEGRO_ALIGN_CENTER, "RECORDE NA SESSÃO: %d",record);
+            al_draw_textf(fonte_titulo, al_map_rgb(255,255,0), 400, 500, ALLEGRO_ALIGN_CENTER, "RECORDE NA SESSÃO: %d",record);
+            */
+
 
 
             if(al_key_down(&keyState, ALLEGRO_KEY_ENTER)){
