@@ -214,8 +214,8 @@ int main(){
         al_set_audio_stream_playing(bgm_stream, true); // Começa a tocar o BGM
     }
 
+    game_state=MENU;
 
-    game_state = MENU;
 	//inicie a logica pro jogo
 	while(!sair_programa){
 
@@ -223,8 +223,33 @@ int main(){
 	if(event.type == ALLEGRO_EVENT_TIMER) {
             al_get_keyboard_state(&keyState); // Atualiza o estado do teclado
 	}
+    if(game_state==MENU){
 
-if(game_state==PLAYING){
+            reset_game_state();
+
+            al_draw_bitmap(fundo_menu, 0, 0, NULL); // desenha o fundo da tela inicial
+            al_draw_text(fonte_titulo, al_map_rgb(0,0,0), 396, 100, ALLEGRO_ALIGN_CENTER, "VIDA UNIVERSITÁRIA");
+            al_draw_text(fonte_titulo, al_map_rgb(255,255,255), 400, 100, ALLEGRO_ALIGN_CENTER, "VIDA UNIVERSITÁRIA");
+            //"duplicado" pois criei uma em preto e outra em branco pra ser meio que a borda e dar contraste com a nuvem
+            al_draw_text(fonte_opcoes, al_map_rgb(0,0,0), 396, 350, ALLEGRO_ALIGN_CENTER, "Pressione ENTER para jogar");
+            al_draw_text(fonte_opcoes, al_map_rgb(0,0,0), 396, 400, ALLEGRO_ALIGN_CENTER, "Pressione ESC para sair");
+            al_draw_text(fonte_opcoes, al_map_rgb(255,255,255), 400, 350, ALLEGRO_ALIGN_CENTER, "Pressione ENTER para jogar");
+            al_draw_text(fonte_opcoes, al_map_rgb(255,255,255), 400, 400, ALLEGRO_ALIGN_CENTER, "Pressione ESC para sair");;
+            al_draw_textf(fonte_titulo, al_map_rgb(0,0,0), 396, 500, ALLEGRO_ALIGN_CENTER, "RECORDE NA SESSÃO: %d",record);
+            al_draw_textf(fonte_titulo, al_map_rgb(255,255,0), 400, 500, ALLEGRO_ALIGN_CENTER, "RECORDE NA SESSÃO: %d",record);
+            // joga na tela
+
+
+
+            if(al_key_down(&keyState, ALLEGRO_KEY_ESCAPE)){
+                sair_programa = true;
+            }
+            if(al_key_down(&keyState, ALLEGRO_KEY_ENTER)){
+                game_state=PLAYING;
+            }
+
+    }
+    if(game_state==PLAYING){
 
 
             // Movimento do personagem
@@ -272,63 +297,20 @@ if(game_state==PLAYING){
 
 
         // Se o evento for fechar a janela
-        }else if(event.type == ALLEGRO_EVENT_DISPLAY_CLOSE || al_key_down(&keyState, ALLEGRO_KEY_ESCAPE)) {
+         if(event.type == ALLEGRO_EVENT_DISPLAY_CLOSE || al_key_down(&keyState, ALLEGRO_KEY_ESCAPE)) {
             sair_programa = true;
 
         }else if(game_state==GAME_OVER){
             if (al_key_down(&keyState, ALLEGRO_KEY_ENTER)) { // Quando ENTER é pressionado
                     reset_game_state(); // A função de reiniciar é chamada aqui!
                     redesenhar = true;  // Força um redesenho para a nova partida
-
             }
 
             draw_game_over_screen(font, font1, &unico_objeto, altura_tela);
         }// Quando entra em GAME_OVER
 
-        else if(game_state==MENU){
-
-            reset_game_state();
-
-            al_draw_bitmap(fundo_menu, 0, 0, NULL); // desenha o fundo da tela inicial
-            al_draw_text(fonte_titulo, al_map_rgb(0,0,0), 396, 100, ALLEGRO_ALIGN_CENTER, "VIDA UNIVERSITÁRIA");
-            al_draw_text(fonte_titulo, al_map_rgb(255,255,255), 400, 100, ALLEGRO_ALIGN_CENTER, "VIDA UNIVERSITÁRIA");
-            //"duplicado" pois criei uma em preto e outra em branco pra ser meio que a borda e dar contraste com a nuvem
-            al_draw_text(fonte_opcoes, al_map_rgb(0,0,0), 396, 350, ALLEGRO_ALIGN_CENTER, "Pressione ENTER para jogar");
-            al_draw_text(fonte_opcoes, al_map_rgb(0,0,0), 396, 400, ALLEGRO_ALIGN_CENTER, "Pressione ESC para sair");
-            al_draw_text(fonte_opcoes, al_map_rgb(255,255,255), 400, 350, ALLEGRO_ALIGN_CENTER, "Pressione ENTER para jogar");
-            al_draw_text(fonte_opcoes, al_map_rgb(255,255,255), 400, 400, ALLEGRO_ALIGN_CENTER, "Pressione ESC para sair");;
-            al_draw_textf(fonte_titulo, al_map_rgb(0,0,0), 396, 500, ALLEGRO_ALIGN_CENTER, "RECORDE NA SESSÃO: %d",record);
-            al_draw_textf(fonte_titulo, al_map_rgb(255,255,0), 400, 500, ALLEGRO_ALIGN_CENTER, "RECORDE NA SESSÃO: %d",record);
-            // joga na tela
 
 
-
-            if(al_key_down(&keyState, ALLEGRO_KEY_ESCAPE)){
-                sair_programa = true;
-            }
-            if(al_key_down(&keyState, ALLEGRO_KEY_ENTER)){
-                game_state=PLAYING;
-            }
-
-        }
-        else if(game_state == PAUSE){
-            al_draw_bitmap(fundo_menu, 0, 0, NULL); // desenha o fundo da tela inicial;
-            al_draw_text(fonte_titulo, al_map_rgb(0,0,0), 396, 100, ALLEGRO_ALIGN_CENTER, "JOGO PAUSADO");
-            al_draw_text(fonte_titulo, al_map_rgb(255,255,255), 400, 100, ALLEGRO_ALIGN_CENTER, "JOGO PAUSADO");
-            al_draw_text(fonte_opcoes, al_map_rgb(0,0,0), 396, 350, ALLEGRO_ALIGN_CENTER, "Pressione ENTER para RETOMAR");
-            al_draw_text(fonte_opcoes, al_map_rgb(255,255,255), 400, 350, ALLEGRO_ALIGN_CENTER, "Pressione ENTER para RETOMAR");
-            al_draw_text(fonte_opcoes, al_map_rgb(0,0,0), 396, 400, ALLEGRO_ALIGN_CENTER, "Pressione M para MENU");
-            al_draw_text(fonte_opcoes, al_map_rgb(255,255,255), 400, 400, ALLEGRO_ALIGN_CENTER, "Pressione M para MENU");
-
-
-            if(al_key_down(&keyState, ALLEGRO_KEY_ENTER)){
-                game_state=PLAYING;
-            }
-            if(al_key_down(&keyState, ALLEGRO_KEY_M)){
-                game_state=MENU;
-            }
-
-        }
 
 
         // --- Seção de Desenho (só executa quando necessário) ---
@@ -375,8 +357,8 @@ if(game_state==PLAYING){
             }
 
         }
-    if(game_state==PLAYING){
-    al_draw_textf(
+
+        al_draw_textf(
             font,
             al_map_rgb(155,155,155), //cor: amarelo
             800/2 + 3,                 //centro da tela
@@ -415,6 +397,23 @@ if(game_state==PLAYING){
         );
 
         al_draw_text(fonte_pause, al_map_rgba(0,0,0,140), 116, 30, ALLEGRO_ALIGN_CENTER, "P PARA PAUSAR");
+
+    }else if(game_state == PAUSE){
+            al_draw_bitmap(fundo_menu, 0, 0, NULL); // desenha o fundo da tela inicial;
+            al_draw_text(fonte_titulo, al_map_rgb(0,0,0), 396, 100, ALLEGRO_ALIGN_CENTER, "JOGO PAUSADO");
+            al_draw_text(fonte_titulo, al_map_rgb(255,255,255), 400, 100, ALLEGRO_ALIGN_CENTER, "JOGO PAUSADO");
+            al_draw_text(fonte_opcoes, al_map_rgb(0,0,0), 396, 350, ALLEGRO_ALIGN_CENTER, "Pressione ENTER para RETOMAR");
+            al_draw_text(fonte_opcoes, al_map_rgb(255,255,255), 400, 350, ALLEGRO_ALIGN_CENTER, "Pressione ENTER para RETOMAR");
+            al_draw_text(fonte_opcoes, al_map_rgb(0,0,0), 396, 400, ALLEGRO_ALIGN_CENTER, "Pressione M para MENU");
+            al_draw_text(fonte_opcoes, al_map_rgb(255,255,255), 400, 400, ALLEGRO_ALIGN_CENTER, "Pressione M para MENU");
+
+
+            if(al_key_down(&keyState, ALLEGRO_KEY_ENTER)){
+                game_state=PLAYING;
+            }
+            if(al_key_down(&keyState, ALLEGRO_KEY_M)){
+                game_state=MENU;
+            }
 
         }
 	//chão
@@ -487,10 +486,9 @@ int atualizar_quadrado(Objeto *unicoquadrado, int coordenadasobjs[][4], ALLEGRO_
     if(!unicoquadrado->ativo){
         unicoquadrado->id = rand()% (5 - 0 + 1) + 0;
         frame_obj = unicoquadrado->id;
-        unicoquadrado->posicao.x = rand() % (al_get_display_width(disp)-coordenadasobjs[frame_obj][2]);
-        unicoquadrado->posicao.x = rand() % (al_get_display_width(disp));
+        unicoquadrado->posicao.x = rand() % (al_get_display_width(disp)- coordenadasobjs[frame_obj][2]);
         unicoquadrado->posicao.y = 0;
-        unicoquadrado->cor = al_map_rgba(255, 0, 255, 0);
+        unicoquadrado->cor = al_map_rgba(255, 0, 255, 255);
         unicoquadrado->velo = 2;
         unicoquadrado->tamanho.x = coordenadasobjs[frame_obj][2];
         unicoquadrado->tamanho.y = 30;
@@ -603,5 +601,5 @@ void reset_game_state(void){
     unico_objeto.diario=0;
     unico_objeto.caderno=0;
     unicoquadrado.ativo=false;
-        aux_velocidade = 0;
+    aux_velocidade = 0;
 } // Função para reiniciar todas as variáveis do jogo
