@@ -424,6 +424,9 @@ int main(){
             if(al_key_down(&keyState, ALLEGRO_KEY_M)){
                 game_state=MENU;
             }
+            if(al_key_down(&keyState, ALLEGRO_KEY_ESCAPE)){
+                sair_programa = true;
+            }
 
         }
 	//chão
@@ -471,6 +474,10 @@ int main(){
                     reset_game_state(); // A função de reiniciar é chamada aqui!
                     redesenhar = true;  // Força um redesenho para a nova partida
                     game_state=PLAYING;
+            }
+
+            if(al_key_down(&keyState, ALLEGRO_KEY_ESCAPE)){
+                sair_programa = true;
             }
         }// Quando entra em GAME_OVER
 
